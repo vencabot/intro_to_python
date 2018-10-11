@@ -4,12 +4,20 @@ from tkinter import Menu
 from tkinter import Button
 from tkinter import Label
 from tkinter import filedialog
+from tkinter import Frame
+from tkinter import StringVar
+from tkinter import IntVar
+from tkinter import OptionMenu
 
+##############################################
+##### Initialize Variables and Functions #####
+##############################################
 
-# ***** Initialize Variables and Functions *****
+# Program Details
+programName = "3rd Strike Palette Editor"
+verNum = "0.1"
 
 # Character Palette Start Addresses
-
 ALEX_PAL_ADDR   = 0x700600
 RYU_PAL_ADDR    = 0x700980
 YUN_PAL_ADDR    = 0x700D00
@@ -31,103 +39,194 @@ Q_PAL_ADDR      = 0x703F00
 TWELVE_PAL_ADDR = 0x704280
 REMY_PAL_ADDR   = 0x704600
 
-CHAR_PAL_BTN_OFFSET = [0,0x80,0x100,0x180,0x200,0x280,0x300]     # Offsets for a single character's 7 different color palettes
+# Offsets for a single character's 7 different color palettes
+CHAR_PAL_BTN_OFFSET = [0,0x80,0x100,0x180,0x200,0x280,0x300]     
+
+# Character List as it appears in the rom file for the palettes
+srcCharList = ["Alex", 
+            "Ryu", 
+            "Yun", 
+            "Dudley", 
+            "Necro", 
+            "Hugo", 
+            "Ibuki", 
+            "Elena", 
+            "Oro", 
+            "Yang", 
+            "Ken",
+            "Sean",
+            "Urien",
+            "Gouki",
+            "Shin Gouki", 
+            "Chun Li", 
+            "Makoto", 
+            "Q", 
+            "Twelve", 
+            "Remy"]
+
+# Character List in Alphabetical Order
+srcCharListABC = ["Alex", 
+            "Chun Li", 
+            "Dudley", 
+            "Elena", 
+            "Gouki",
+            "Hugo",
+            "Ibuki", 
+            "Ken",
+            "Makoto", 
+            "Necro",
+            "Oro", 
+            "Q", 
+            "Remy",
+            "Ryu",  
+            "Sean",
+            "Shin Gouki", 
+            "Twelve", 
+            "Urien",
+            "Yang",
+            "Yun"]
+
+# List for the IntVar later to select the column and row for which color in the palette you have selected
+palSelect = [0, 1, 2, 3, 4, 5, 6 ,7]
 
 
 
-# **************************
-# ***** Define Classes *****
-# **************************
+##########################
+##### Define Classes #####
+##########################
 
 # Palette Class - Individual Color Palette containing 64 Colors
 class colorPalette:
 
-    def __init__(self, f, startAddr, offset):
-        self.redColorArray = []                 # Initialize three arrays for each color
+    def __init__(self, singlePal):
+        self.redColorArray = []                  # Initialize three arrays for each color
         self.greenColorArray = []
         self.blueColorArray = []
-        newStartAddr = startAddr + offset       # Gets the correct address based on the character's 
-                                                # address in the file plus the corresponding offset
-                                                # based on the color of the button pressed
 
-        self.loadColors(f, newStartAddr)        # Calls function to get the color values for the arrays
-
+        self.loadColors(singlePal)               # Calls function to get the color values for the arrays
 
     # Arguments: Opened bytearray read from the file, the starting address of where the colors are
-    def loadColors(self, f, startAddr):
+    def loadColors(self, p):
         # For loop to add to the start address for each new color (2 bytes per color, 64 colors)
         for x in range(0,128,2):
-            colorAddr = startAddr + x
-            self.redColorArray.append(self.getColor(f, colorAddr, "red"))
-            self.greenColorArray.append(self.getColor(f, colorAddr, "green"))
-            self.blueColorArray.append(self.getColor(f, colorAddr, "blue"))
+            self.redColorArray.append(self.getColor(p, x, "red"))
+            self.greenColorArray.append(self.getColor(p, x, "green"))
+            self.blueColorArray.append(self.getColor(p, x, "blue"))
 
     # Returns the color from the bytes provided
-    def getColor(self, f, addr, color):
-        largeByte = self.getByte(f, addr)
-        smallByte = self.getByte(f, addr+1)
+    def getColor(self, p, addr, color):
+        largeByte = self.getByte(p, addr)
+        smallByte = self.getByte(p, addr+1)
         word = (largeByte << 8) + smallByte
 
         if (color == "red"):
-            return self.getSingleColor(word, word>>5)
+            return self.getFiveBitColor(word, word>>5)
         elif (color == "green"):
-            return self.getSingleColor(word>>5, word>>10)
+            return self.getFiveBitColor(word>>5, word>>10)
         elif (color == "blue"):
-            return self.getSingleColor(word>>10, word>>15)
+            return self.getFiveBitColor(word>>10, word>>15)
 
-    # Returns the individual R, B, or G value based on the 2 bytes passed to it
-    def getSingleColor(self, origNum, subt):
+    # Returns the individual 5-bit R, B, or G value based on the 2 bytes passed to it
+    def getFiveBitColor(self, origNum, subt):
         return (origNum-(subt<<5))
 
     # Takes a file address location and returns the value at that address
     def getByte(self, f, fileAddr):
         return f[fileAddr]
 
+    # Takes the RGB colors and converts to a hex string usable for setting colors to widgets
+    def outputColor(self, colorNumber):
+        colorR = round(self.redColorArray[colorNumber]/31*255)
+        colorG = round(self.greenColorArray[colorNumber]/31*255)
+        colorB = round(self.blueColorArray[colorNumber]/31*255)
+        hexValue = "#%02x%02x%02x" % (colorR, colorG, colorB)
+        return hexValue
 
+    
+
+# Character Class - Contains 2-7 palette classes for each character
 class charPalettes:
     
-    def __init__(self, f, startAddr, numPal, name):
+    def __init__(self, charPalArr, name):
         self.charName = name
-        if (numPal == 7):
-            self.colPalLP = colorPalette(f, startAddr, CHAR_PAL_BTN_OFFSET[0])
-            self.colPalMP = colorPalette(f, startAddr, CHAR_PAL_BTN_OFFSET[1])
-            self.colPalHP = colorPalette(f, startAddr, CHAR_PAL_BTN_OFFSET[2])
-            self.colPalLK = colorPalette(f, startAddr, CHAR_PAL_BTN_OFFSET[3])
-            self.colPalMK = colorPalette(f, startAddr, CHAR_PAL_BTN_OFFSET[4])
-            self.colPalHK = colorPalette(f, startAddr, CHAR_PAL_BTN_OFFSET[5])
-            self.colPalSpecial = colorPalette(f, startAddr, CHAR_PAL_BTN_OFFSET[6])
-        elif (numPal == 2):
-            self.colPalLP = colorPalette(f, startAddr, CHAR_PAL_BTN_OFFSET[0])
-            self.colPalMP = colorPalette(f, startAddr, CHAR_PAL_BTN_OFFSET[1])
-            self.colPalHP = None
-            self.colPalLK = None
-            self.colPalMK = None
-            self.colPalHK = None
-            self.colPalSpecial = None
+        if ((len(charPalArr)/0x80) == 7):
+            self.LP = colorPalette(self.getSinglePalArray(charPalArr, CHAR_PAL_BTN_OFFSET[0]))
+            self.MP = colorPalette(self.getSinglePalArray(charPalArr, CHAR_PAL_BTN_OFFSET[1]))
+            self.HP = colorPalette(self.getSinglePalArray(charPalArr, CHAR_PAL_BTN_OFFSET[2]))
+            self.LK = colorPalette(self.getSinglePalArray(charPalArr, CHAR_PAL_BTN_OFFSET[3]))
+            self.MK = colorPalette(self.getSinglePalArray(charPalArr, CHAR_PAL_BTN_OFFSET[4]))
+            self.HK = colorPalette(self.getSinglePalArray(charPalArr, CHAR_PAL_BTN_OFFSET[5]))
+            self.Special = colorPalette(self.getSinglePalArray(charPalArr, CHAR_PAL_BTN_OFFSET[6]))
+        elif ((len(charPalArr)/0x80) == 2):
+            self.LP = colorPalette(self.getSinglePalArray(charPalArr, CHAR_PAL_BTN_OFFSET[0]))
+            self.MP = colorPalette(self.getSinglePalArray(charPalArr, CHAR_PAL_BTN_OFFSET[1]))
+            self.HP = None
+            self.LK = None
+            self.MK = None
+            self.HK = None
+            self.Special = None
         updateSB("%s's palette has been initialized" % name)
+    
+    # Returns a list 80 bytes long to return a single palette instead of needing to pass the whole file
+    def getSinglePalArray(self, fullPalArray, offset):
+        arr = bytearray()
+        for x in range(0,0x80):
+            addy = offset + x
+            arr.append(fullPalArray[addy])
+        return arr
 
 
-def initCharPalClasses(f):
-    AlexPal = charPalettes(f, ALEX_PAL_ADDR, 7, "Alex")
-    RyuPal = charPalettes(f, RYU_PAL_ADDR, 7, "Ryu")
-    YunPal = charPalettes(f, YUN_PAL_ADDR, 7, "Yun")
-    DudPal = charPalettes(f, DUD_PAL_ADDR, 7, "Dudley")
-    NecroPal = charPalettes(f, NECRO_PAL_ADDR, 7, "Necro")
-    HugoPal = charPalettes(f, HUGO_PAL_ADDR, 7, "Hugo")
-    IbukiPal = charPalettes(f, IBUKI_PAL_ADDR, 7, "Ibuki")
-    ElenaPal = charPalettes(f, ELENA_PAL_ADDR, 7, "Elena")
-    OroPal = charPalettes(f, ORO_PAL_ADDR, 7, "Oro")
-    YangPal = charPalettes(f, YANG_PAL_ADDR, 7, "Yang")
-    KenPal = charPalettes(f, KEN_PAL_ADDR, 7, "Ken")
-    SeanPal = charPalettes(f, SEAN_PAL_ADDR, 7, "Sean")
-    UrienPal = charPalettes(f, URIEN_PAL_ADDR, 7, "Urien")
-    GoukiPal = charPalettes(f, GOUKI_PAL_ADDR, 7, "Gouki")
-    ShinGoukiPal = charPalettes(f, SHING_PAL_ADDR, 2, "Shin Gouki")
-    ChunPal = charPalettes(f, CHUN_PAL_ADDR, 7, "Chun Li")
-    MakPal = charPalettes(f, MAK_PAL_ADDR, 7, "Makoto")
-    QPal = charPalettes(f, Q_PAL_ADDR, 7, "Q")
-    TwelvePal = charPalettes(f, TWELVE_PAL_ADDR, 7, "Twelve")
-    RemyPal = charPalettes(f, REMY_PAL_ADDR, 7, "Remy")
+
+# PaletteEditor Class - Houses functions for reading the opened file and initializes all character's classes
+class PaletteEditor:
+    
+    # Defines the palettes dictionary
+    def __init__(self):
+        self.palettes = {}
+        
+    # Defines the function to open the file selected and initialize the character classes
+    def openFileCmd(self):
+        openFilePath = filedialog.askopenfilename(title="Select File",filetypes=(("3s Character Palette (51) File","51"),("All Files","*.*")))
+        if openFilePath != "":
+            updateSB("Loaded %s into memory!" % openFilePath)
+            openFile = open(openFilePath,"rb").read()
+            self.initCharPalClasses(openFile)
+            updateSB("Character Palettes Initialized!")
+
+    # Defines all of the character classes and sends the needed data to be parsed for the individual palettes
+    def initCharPalClasses(self, f):
+        self.palettes["Alex"] = charPalettes(self.charPalDataArray(f, ALEX_PAL_ADDR, 7), "Alex")
+        self.palettes["Ryu"] = charPalettes(self.charPalDataArray(f, RYU_PAL_ADDR, 7), "Ryu")
+        self.palettes["Yun"] = charPalettes(self.charPalDataArray(f, YUN_PAL_ADDR, 7), "Yun")
+        self.palettes["Dudley"] = charPalettes(self.charPalDataArray(f, DUD_PAL_ADDR, 7), "Dudley")
+        self.palettes["Necro"] = charPalettes(self.charPalDataArray(f, NECRO_PAL_ADDR, 7), "Necro")
+        self.palettes["Hugo"] = charPalettes(self.charPalDataArray(f, HUGO_PAL_ADDR, 7), "Hugo")
+        self.palettes["Ibuki"] = charPalettes(self.charPalDataArray(f, IBUKI_PAL_ADDR, 7), "Ibuki")
+        self.palettes["Elena"] = charPalettes(self.charPalDataArray(f, ELENA_PAL_ADDR, 7), "Elena")
+        self.palettes["Oro"] = charPalettes(self.charPalDataArray(f, ORO_PAL_ADDR, 7), "Oro")
+        self.palettes["Yang"] = charPalettes(self.charPalDataArray(f, YANG_PAL_ADDR, 7), "Yang")
+        self.palettes["Ken"] = charPalettes(self.charPalDataArray(f, KEN_PAL_ADDR, 7), "Ken")
+        self.palettes["Sean"] = charPalettes(self.charPalDataArray(f, SEAN_PAL_ADDR, 7), "Sean")
+        self.palettes["Urien"] = charPalettes(self.charPalDataArray(f, URIEN_PAL_ADDR, 7), "Urien")
+        self.palettes["Gouki"] = charPalettes(self.charPalDataArray(f, GOUKI_PAL_ADDR, 7), "Gouki")
+        self.palettes["Shin Gouki"] = charPalettes(self.charPalDataArray(f, SHING_PAL_ADDR, 2), "Shin Gouki")
+        self.palettes["Chun Li"] = charPalettes(self.charPalDataArray(f, CHUN_PAL_ADDR, 7), "Chun Li")
+        self.palettes["Makoto"] = charPalettes(self.charPalDataArray(f, MAK_PAL_ADDR, 7), "Makoto")
+        self.palettes["Q"] = charPalettes(self.charPalDataArray(f, Q_PAL_ADDR, 7), "Q")
+        self.palettes["Twelve"] = charPalettes(self.charPalDataArray(f, TWELVE_PAL_ADDR, 7), "Twelve")
+        self.palettes["Remy"] = charPalettes(self.charPalDataArray(f, REMY_PAL_ADDR, 7), "Remy")
+
+    # Takes the full file, character offset address, and the number of palettes, and returns only the bytes relevent to that character
+    def charPalDataArray(self, f, startAddr, numPal):
+        arr = bytearray()
+        size = numPal * 0x80
+        for x in range(0,size):
+            arr.append(f[startAddr+x])
+        return arr
+
+    
+# Creates the base object for the palette editor to allow for some variables to have a state
+palEdit = PaletteEditor()
 
 
 
@@ -137,7 +236,8 @@ def initCharPalClasses(f):
 
 # Create main object for GUI
 root = Tk()
-root.geometry("800x600+350+150")
+root.geometry("320x240+350+150")
+root.title(programName + " - Version " + verNum)
 
 # Define updateStatBar function to update the statusbar
 def updateSB(t):
@@ -147,7 +247,7 @@ def updateSB(t):
 def setFocusOnButton(event):
     event.widget.focus()
 
-# Define Menu Mouseover Events
+# Define Menu Mouseover Events - Updates the status bar when mousing over items in the File Menu
 def mOver_File(event):
     # Event list
     # 0 = Open
@@ -161,59 +261,125 @@ def mOver_File(event):
     elif (calledEvent == "none"):
         updateSB("")
 
+# Define Menu Mouseover Events - Updates the status bar when mousing over items in the Options Menu
+def mOver_Options(event):
+    # Event list
+    # 0 = Show Characters Alphabetically
+    calledEvent = root.call(event.widget, "index", "active")
+    print(calledEvent)
+    if (calledEvent == 0):
+        updateSB("Shows the character list in alphabetical order")
+    elif (calledEvent == "none"):
+        updateSB("")
 
-# Define Menu Functions
-def openFileCmd():
-    openFilePath = filedialog.askopenfilename(title="Select File",filetypes=(("3s Character Palette (51) File","51"),("All Files","*.*")))
-    if openFilePath != "":
-        updateSB("Loaded %s into memory!" % openFilePath)
-        openFile = open(openFilePath,"rb").read()
-        initCharPalClasses(openFile)
-        updateSB("Character Palettes Initialized!")
+# Updates the character list between file order and alphabetical order - Prints a Debugger Line to show what character is selected
+def updateCharList():
+    if (charABCOrder.get() == 0):
+        charMenu["menu"].delete(0, "end")
+
+        for choice in srcCharList:
+            charMenu["menu"].add_command(label=choice, command=tk._setit(charListStr, choice))
+    elif (charABCOrder.get() == 1):
+        charMenu["menu"].delete(0, "end")
+
+        for choice in srcCharListABC:
+            charMenu["menu"].add_command(label=choice, command=tk._setit(charListStr, choice))
+
+    print("Current selected character is %s" % charListStr.get())
+
+# Updates the frame color using the selected character name, column, and row - ONLY DOES LP COLORS CURRENTLY
+def updateFrameColor():
+    charName = charListStr.get()
+    row = selectedPaletteRowVar.get() * 8
+    col = selectedPaletteColumnVar.get()
+    numColor = row + col
+    palFrame.config(bg=palEdit.palettes[charName].LP.outputColor(numColor))
 
 
-   
-def testClasses():
-    print(AlexPal.charName)
-    
 
+########################
 ##### MENU BAR GUI #####
+########################
 
 # Config to set mainMenuBar as the menu bar
 mainMenuBar = Menu(root)
 root.config(menu=mainMenuBar)
 
-# Create object for the File dropdown bar, tearoff=0 removes the dashes at the top of the cascade menu
-mainFileDropDown = Menu(mainMenuBar, tearoff=0)
-# Add the File cascade to the mainMenuBar
-mainMenuBar.add_cascade(label="File", menu=mainFileDropDown)
 
-# Add Options to the mainFileDropDown Cascade
-mainFileDropDown.add_command(label="Open", command=openFileCmd)
-mainFileDropDown.add_separator()
-mainFileDropDown.add_command(label="Quit", command=root.quit)
+# Create object for the File and Options dropdown bar, tearoff=0 removes the dashes at the top of the cascade menu
+fileDropDown = Menu(mainMenuBar, tearoff=0)
+optionDropDown = Menu(mainMenuBar, tearoff=0)
+
+# Add the File cascade to the mainMenuBar
+mainMenuBar.add_cascade(label="File", menu=fileDropDown)
+mainMenuBar.add_cascade(label="Options", menu=optionDropDown)
+
+# Variable for alphabetical char list order
+charABCOrder = tk.IntVar()
+charABCOrder.set(0)
+
+# Add options to the mainFileDropDown Cascade
+fileDropDown.add_command(label="Open", command=palEdit.openFileCmd)
+fileDropDown.add_separator()
+fileDropDown.add_command(label="Quit", command=root.quit)
+
+# Add options to the Options Cascade
+optionDropDown.add_checkbutton(label="Show Characters Alphabetically", onvalue=1, offvalue=0, variable=charABCOrder, command=updateCharList)
 
 # Bind MouseOver events
-mainFileDropDown.bind("<<MenuSelect>>", mOver_File)
+fileDropDown.bind("<<MenuSelect>>", mOver_File)
+optionDropDown.bind("<<MenuSelect>>", mOver_Options)
+
+
+
+#######################
+##### MAIN WINDOW #####
+#######################
 
 # Add in buttons to perform tasks
-buttonTestCalc = Button(root, text="Test Calc", command=testClasses)
+buttonTestCalc = Button(root, text="Update Frame Color", command=updateFrameColor)
 buttonTestCalc.pack()
 
 
+palFrame = Frame(height=100, width=100, bd=1, relief=tk.SUNKEN, bg="red")
+palFrame.pack()
+
+# Creates StringVar object with srcCharList to select character
+charListStr = StringVar(root)
+charListStr.set(srcCharList[0])       # Sets default value for dropdown menu
+
+# Creates the dropdown menu to select a character
+charMenu = OptionMenu(root, charListStr, *srcCharList)
+charMenu.config(width=10, bd=1)
+charMenu.pack()
+
+# Creating dropdown menus for selecting Columns and Rows for the palette
+selectedPaletteColumnVar = IntVar(root)
+selectedPaletteColumnVar.set(palSelect[0])
+
+selectedPaletteRowVar = IntVar(root)
+selectedPaletteRowVar.set(palSelect[0])
+
+selectedPalCol = OptionMenu(root, selectedPaletteColumnVar, *palSelect)
+selectedPalRow = OptionMenu(root, selectedPaletteRowVar, *palSelect)
+
+selectedPalCol.pack()
+selectedPalRow.pack()
 
 
 
-
-
-
+##########################
 ##### STATUS BAR GUI #####
+##########################
 
 statusBar = Label(root, text="", bd=1, relief=tk.SUNKEN, anchor=tk.W)
 statusBar.pack(side=tk.BOTTOM, fill=tk.X)
 
 
 
+##########################
+##### GUI LOOP START #####
+##########################
 
 # Run window infinitely until close
 root.mainloop()
