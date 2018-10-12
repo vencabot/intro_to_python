@@ -398,6 +398,9 @@ palFrame.pack()
 charListStr = StringVar(root)
 charListStr.set(srcCharList[0])       # Sets default value for dropdown menu
 
+vencabot_frame = Frame(root)
+vencabot_frame.pack()
+
 # Creating dropdown menus for selecting Columns and Rows for the palette
 selectedPaletteColumnVar = IntVar(root)
 selectedPaletteColumnVar.set(palSelect[0])
@@ -412,7 +415,7 @@ selectedPalCol.pack()
 selectedPalRow.pack()
 
 # Create the Vencabot example sortable drop-down menu.
-sortable_character_menu = SortableCharacterMenu(root, charListStr)
+sortable_character_menu = SortableCharacterMenu(vencabot_frame, charListStr)
 
 
 
