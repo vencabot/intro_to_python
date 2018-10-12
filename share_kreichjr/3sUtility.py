@@ -191,7 +191,10 @@ class PaletteEditor:
             updateSB("Loaded %s into memory!" % openFilePath)
             openFile = open(openFilePath,"rb").read()
             self.initCharPalClasses(openFile)
+            updateFrameColor()
             updateSB("Character Palettes Initialized!")
+            
+            
 
     # Defines all of the character classes and sends the needed data to be parsed for the individual palettes
     def initCharPalClasses(self, f):
@@ -253,7 +256,6 @@ def mOver_File(event):
     # 0 = Open
     # 2 = Exit
     calledEvent = root.call(event.widget, "index", "active")
-    print(calledEvent)
     if (calledEvent == 0):
         updateSB("Open a file")
     elif (calledEvent == 2):
@@ -266,11 +268,17 @@ def mOver_Options(event):
     # Event list
     # 0 = Show Characters Alphabetically
     calledEvent = root.call(event.widget, "index", "active")
-    print(calledEvent)
     if (calledEvent == 0):
         updateSB("Shows the character list in alphabetical order")
     elif (calledEvent == "none"):
         updateSB("")
+
+# Define a small function to allow toggling between ABC and nonABC order while retaining it's call to update colors
+def toggleABC(name):
+    #print("Right Before toggleABC runs, charListStr is: %s" % charListStr.get())
+    #print("ToggleABC: name passed: %s" % name)
+    tk._setit(charListStr, name)
+    updateFrameColor()
 
 # Updates the character list between file order and alphabetical order - Prints a Debugger Line to show what character is selected
 def updateCharList():
@@ -279,22 +287,42 @@ def updateCharList():
 
         for choice in srcCharList:
             charMenu["menu"].add_command(label=choice, command=tk._setit(charListStr, choice))
+        #for choice in srcCharList:
+        #    print("Choice list - %s" % choice)
+        #    charMenu["menu"].add_command(label=choice, command=lambda: toggleABC(choice))
     elif (charABCOrder.get() == 1):
         charMenu["menu"].delete(0, "end")
 
         for choice in srcCharListABC:
             charMenu["menu"].add_command(label=choice, command=tk._setit(charListStr, choice))
+        #    print("ABC Keys: %s" % charMenu["menu"].keys())
 
     print("Current selected character is %s" % charListStr.get())
 
 # Updates the frame color using the selected character name, column, and row - ONLY DOES LP COLORS CURRENTLY
-def updateFrameColor():
+def updateFrameColor(*args):
     charName = charListStr.get()
     row = selectedPaletteRowVar.get() * 8
     col = selectedPaletteColumnVar.get()
     numColor = row + col
     palFrame.config(bg=palEdit.palettes[charName].LP.outputColor(numColor))
+    updateSB("Displaying color %d of %s's LP Palette" % (numColor+1, charName))
 
+
+
+#######################
+##### DEBUG STUFF #####
+#######################
+
+def mOver_Test(event):
+    # Event list
+    print(str(event))
+    #calledEvent = root.call(event.widget, "index", "active")
+    #print(calledEvent)
+    #if (calledEvent == 0):
+    #    updateSB("Shows the character list in alphabetical order")
+    #elif (calledEvent == "none"):
+    #    updateSB("")
 
 
 ########################
@@ -304,7 +332,6 @@ def updateFrameColor():
 # Config to set mainMenuBar as the menu bar
 mainMenuBar = Menu(root)
 root.config(menu=mainMenuBar)
-
 
 # Create object for the File and Options dropdown bar, tearoff=0 removes the dashes at the top of the cascade menu
 fileDropDown = Menu(mainMenuBar, tearoff=0)
@@ -349,7 +376,7 @@ charListStr = StringVar(root)
 charListStr.set(srcCharList[0])       # Sets default value for dropdown menu
 
 # Creates the dropdown menu to select a character
-charMenu = OptionMenu(root, charListStr, *srcCharList)
+charMenu = OptionMenu(root, charListStr, *srcCharList, command=updateFrameColor)
 charMenu.config(width=10, bd=1)
 charMenu.pack()
 
@@ -360,8 +387,8 @@ selectedPaletteColumnVar.set(palSelect[0])
 selectedPaletteRowVar = IntVar(root)
 selectedPaletteRowVar.set(palSelect[0])
 
-selectedPalCol = OptionMenu(root, selectedPaletteColumnVar, *palSelect)
-selectedPalRow = OptionMenu(root, selectedPaletteRowVar, *palSelect)
+selectedPalCol = OptionMenu(root, selectedPaletteColumnVar, *palSelect, command=updateFrameColor)
+selectedPalRow = OptionMenu(root, selectedPaletteRowVar, *palSelect, command=updateFrameColor)
 
 selectedPalCol.pack()
 selectedPalRow.pack()
