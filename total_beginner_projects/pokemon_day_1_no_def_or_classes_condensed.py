@@ -1,7 +1,8 @@
 pokemon_name = "cyndaquil"
 pokemon_type = "fire"
 pokemon_hp = 55
-pokemon_atk = 8pokemon_def = 2
+pokemon_atk = 8
+pokemon_def = 2
 pokemon_move1_pp = 10
 pokemon_move2_pp = 5
 pokemon_move3_pp = 12
