@@ -1,7 +1,7 @@
 #########################################################################
 # pokemon_day_1_no_def_or_classes_commentated.py                        #
 #     - developed at twitch.tv/vencabot , Intro to Python 10/12/18      #
-#     - watch the archived stream at ___________________________        #
+#     - watch the archived stream at youtube.com/watch?v=qIFIOAIRef0    #
 #                                                                       #
 # This simple game is an exercise meant to strengthen our understanding #
 # of the VERY BASICS of programming, including:                         #
