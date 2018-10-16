@@ -16,7 +16,7 @@ from tkinter import Scale
 
 # Program Details
 programName = "3rd Strike Palette Editor"
-verNum = "0.3"
+verNum = "0.4"
 
 # Character Palette Start Addresses
 ALEX_PAL_ADDR   = 0x700600
@@ -116,7 +116,7 @@ class colorPalette:
 
     
 
-# Character Class - Contains 2-7 palette classes for each character
+# Character Class - Contains 2 or 7 palette classes for each character - Shin Gouki is the only character with 2 palettes
 class charPalettes:
     
     def __init__(self, charPalArr, name):
@@ -163,13 +163,15 @@ class PaletteEditor:
         if openFilePath != "":
             updateSB("Loaded %s into memory!" % openFilePath)
             openFile = open(openFilePath,"rb").read()
+            
+            vencabot_frame.pack()
+            selectedButtonColorPalette.pack()
+            
             self.initCharPalClasses(openFile)
-            updateFrameColor()
             palGrid.updateGrid()
+            updateColors()
             updateSB("Character Palettes Initialized!")
             
-            
-
     # Defines all of the character classes and sends the needed data to be parsed for the individual palettes
     def initCharPalClasses(self, f):
         self.palettes["Alex"] = charPalettes(self.charPalDataArray(f, ALEX_PAL_ADDR, 7), "Alex")
@@ -202,14 +204,19 @@ class PaletteEditor:
         return arr
 
 
+# Vencabot's Sortable Menu Character Class - Creates a class that allows us to destroy 
+# and re-create the character menu so it can be switched between ROM order and 
+# ABC order --- NEAT! <3 <3 <3
 class SortableCharacterMenu:
     src_char_list = [
             "Alex", "Ryu", "Yun", "Dudley", "Necro", "Hugo", "Ibuki",
             "Elena", "Oro", "Yang", "Ken", "Sean", "Urien", "Gouki",
             "Shin Gouki", "Chun Li", "Makoto", "Q", "Twelve", "Remy"]
 
+    # Sorts the above character list into ABC order
     abc_char_list = sorted(src_char_list, key=str.lower)
 
+    # initializes important variables
     def __init__(self, tk_root, char_list_str):
         self.tk_root = tk_root
         self.char_list_str = char_list_str
@@ -221,7 +228,7 @@ class SortableCharacterMenu:
             self.tk_menu.pack_forget()
         self.tk_menu = OptionMenu(
                 self.tk_root, self.char_list_str, *char_list,
-                command=updateFrameColor)
+                command=updateColors)
         self.tk_menu.config(width=10, bd=1)
         self.tk_menu.pack()
 
@@ -231,31 +238,51 @@ class SortableCharacterMenu:
     def sort_src(self):
         self._create_and_repack_menu(self.src_char_list)
 
+
 class PaletteGrid:
     def __init__(self, tk_root):
         self.tk_root = tk_root
         self.palGrid = {}
-        self.selectedItem = None
+        self.selectedItem = -1
         self.palLoaded = False
         self.setupGrid()
 
     def clickCapture(self, event, pos):
         if self.palLoaded:
-            if self.selectedItem != None:
+            if self.selectedItem >= 0:
                 self.palGrid[self.selectedItem].config(relief=tk.FLAT, highlightthickness=1, 
                                                         highlightcolor="black", highlightbackground="black")
             event.widget.config(relief=tk.SUNKEN, highlightthickness=2, 
                                     highlightcolor="red", highlightbackground="red")
             self.selectedItem = pos
+            updateColors()
 
     def onEnter(self, event, pos):
         self.palGrid[pos].config(highlightthickness=2, highlightcolor="blue", highlightbackground="blue")
-
+        updateSB("Mousing Over Position (%d, %d)" % (self.getCol(pos), self.getRow(pos)))
+    
     def onLeave(self, event, pos):
         if self.selectedItem != pos:
             self.palGrid[pos].config(highlightthickness=1, highlightcolor="black", highlightbackground="black")
         else:
             self.palGrid[pos].config(highlightthickness=2, highlightcolor="red", highlightbackground="red")
+        updateSB("")
+
+    def getCol(self, loc):
+        pos = loc % 8
+        return pos
+
+    def getRow(self, loc):
+        pos = loc
+        rem = loc % 8
+        newPos = (pos-rem)/8
+        return newPos
+        
+    def getPos(self):
+        if self.selectedItem >= 0:
+            return self.selectedItem
+        else:
+            return 0
 
     def setupGrid(self):
         for row in range(0, 8):
@@ -270,7 +297,10 @@ class PaletteGrid:
                 self.palGrid[pos].grid(row=row, column=col)
 
     def updateGrid(self):
-        self.palLoaded = True
+        if self.palLoaded == False:    
+            self.palLoaded = True
+            self.palGrid[0].config(highlightthickness=2, highlightcolor="red", highlightbackground="red")
+            self.selectedItem = 0
         for row in range(0, 8):
             for col in range(0, 8):
                 pos = row*8 + col
@@ -295,6 +325,14 @@ palEdit = PaletteEditor()
 # Define updateStatBar function to update the statusbar
 def updateSB(t):
     statusBar.config(text=t)
+
+def updateColorRGBLabel(color, t):
+    if color == "red":
+        redRGBValueLabel.config(text=t)
+    elif color == "green":
+        greenRGBValueLabel.config(text=t)
+    elif color == "blue":
+        blueRGBValueLabel.config(text=t)
 
 # Define button focus function
 def setFocusOnButton(event):
@@ -335,25 +373,44 @@ def updateCharList():
 
     print("Current selected character is %s" % charListStr.get())
 
-def updateSliders(*_):
-    colorR = round(redSlider.get()/31*255)
-    colorG = round(greenSlider.get()/31*255)
-    colorB = round(blueSlider.get()/31*255)
-    hexValue = "#%02x%02x%02x" % (colorR, colorG, colorB)
-    palFrame.config(bg=hexValue)
+def updateSliders(charName, btn, pos):
+    redSlider.set(palEdit.palettes[charName].button[btn].outputRed(pos))
+    greenSlider.set(palEdit.palettes[charName].button[btn].outputGreen(pos))
+    blueSlider.set(palEdit.palettes[charName].button[btn].outputBlue(pos))
+    updatePreviewFromSliders()
 
-# Updates the frame color using the selected character name, column, and row - ONLY DOES LP COLORS CURRENTLY
-def updateFrameColor(*_):
+def updatePreviewFromSliders(*_):
+    if palGrid.palLoaded:
+        colorR = round(redSlider.get()/31*255)
+        colorG = round(greenSlider.get()/31*255)
+        colorB = round(blueSlider.get()/31*255)
+        updateColorRGBLabel("red", str(colorR))
+        updateColorRGBLabel("green", str(colorG))
+        updateColorRGBLabel("blue", str(colorB))
+        hexValue = "#%02x%02x%02x" % (colorR, colorG, colorB)
+        palFrame.config(bg=hexValue)
+
+# Updates the frame color using the selected character name, column, and row
+#def updatePreviewColor(*_):
+#    charName = charListStr.get()
+#    row = selectedPaletteRowVar.get() * 8
+#    col = selectedPaletteColumnVar.get()
+#    btn = selectedButtonColorPaletteVar.get()
+#    numColor = row + col
+#    redSlider.set(palEdit.palettes[charName].button[btn].outputRed(numColor))
+#    greenSlider.set(palEdit.palettes[charName].button[btn].outputGreen(numColor))
+#    blueSlider.set(palEdit.palettes[charName].button[btn].outputBlue(numColor))
+#    palFrame.config(bg=palEdit.palettes[charName].button[btn].outputColor(numColor))
+#    updateSB("Displaying color %d of %s's %s Palette" % (numColor+1, charName, btn))
+
+# Updates the frame color using the selected character name, column, and row
+def updateColors(*_):
     charName = charListStr.get()
-    row = selectedPaletteRowVar.get() * 8
-    col = selectedPaletteColumnVar.get()
     btn = selectedButtonColorPaletteVar.get()
-    numColor = row + col
-    redSlider.set(palEdit.palettes[charName].button[btn].outputRed(numColor))
-    greenSlider.set(palEdit.palettes[charName].button[btn].outputGreen(numColor))
-    blueSlider.set(palEdit.palettes[charName].button[btn].outputBlue(numColor))
-    palFrame.config(bg=palEdit.palettes[charName].button[btn].outputColor(numColor))
-    updateSB("Displaying color %d of %s's %s Palette" % (numColor+1, charName, btn))
+    pos = palGrid.getPos()
+    updateSliders(charName, btn, pos)
+    palGrid.updateGrid()
+    updateSB("Displaying color %d out of 64 for %s's %s Palette" % (pos+1, charName, btn))
 
 
 
@@ -378,7 +435,7 @@ def mOver_Test(event):
 
 # Create main object for GUI
 root = Tk()
-root.geometry("320x480+350+150")
+root.geometry("440x680+350+150")
 root.title(programName + " - Version " + verNum)
 
 # Config to set mainMenuBar as the menu bar
@@ -416,10 +473,11 @@ optionDropDown.bind("<<MenuSelect>>", mOver_Options)
 #######################
 
 # Add in buttons to perform tasks
-buttonTestCalc = Button(root, text="Update Frame Color", command=updateFrameColor)
-buttonTestCalc.pack()
+#buttonTestCalc = Button(root, text="Update Frame Color", command=updateFrameColor)
+#buttonTestCalc.pack()
 
-
+previewLabel = Label(root, text="Preview Color")
+previewLabel.pack()
 palFrame = Frame(height=100, width=100, bd=1, relief=tk.SUNKEN)
 palFrame.pack()
 
@@ -428,41 +486,76 @@ charListStr = StringVar(root)
 charListStr.set(START_CHAR)       # Sets default value for dropdown menu
 
 vencabot_frame = Frame(root)
-vencabot_frame.pack()
+
 
 # Create the Vencabot example sortable drop-down menu.
 sortable_character_menu = SortableCharacterMenu(vencabot_frame, charListStr)
 
+
+
+
+
+#######################################
+##### REMOVING TO MOVE TO PALGRID #####
+#######################################
+
 # Creating dropdown menus for selecting Columns and Rows for the palette
-selectedPaletteColumnVar = IntVar(root)
-selectedPaletteColumnVar.set(palSelect[0])
+#selectedPaletteColumnVar = IntVar(root)
+#selectedPaletteColumnVar.set(palSelect[0])
 
-selectedPaletteRowVar = IntVar(root)
-selectedPaletteRowVar.set(palSelect[0])
+#selectedPaletteRowVar = IntVar(root)
+#selectedPaletteRowVar.set(palSelect[0])
 
-selectedPalCol = OptionMenu(root, selectedPaletteColumnVar, *palSelect, command=updateFrameColor)
-selectedPalRow = OptionMenu(root, selectedPaletteRowVar, *palSelect, command=updateFrameColor)
+#selectedPalCol = OptionMenu(root, selectedPaletteColumnVar, *palSelect, command=updatePreviewColor)
+#selectedPalRow = OptionMenu(root, selectedPaletteRowVar, *palSelect, command=updatePreviewColor)
 
-selectedPalCol.pack()
-selectedPalRow.pack()
+#selectedPalCol.pack()
+#selectedPalRow.pack()
+
+#######################################
+##### REMOVING TO MOVE TO PALGRID #####
+#######################################
+
+
+
+
 
 # Create dropdown menu to select the button that's associated with the specific color palette you want
 selectedButtonColorPaletteVar = StringVar(root)
 selectedButtonColorPaletteVar.set(buttonSelect[0])
 
-selectedButtonColorPalette = OptionMenu(root, selectedButtonColorPaletteVar, *buttonSelect, command=updateFrameColor)
+selectedButtonColorPalette = OptionMenu(vencabot_frame, selectedButtonColorPaletteVar, *buttonSelect, command=updateColors)
 
-selectedButtonColorPalette.pack()
+# Creates a Frame to contain all of the slider bars and labels
+sliderFrame = Frame(root)
+sliderFrame.pack()
+
+# Creates color labels for the sliders
+redLabel = Label(sliderFrame, text="Red: ")
+greenLabel = Label(sliderFrame, text="Green: ")
+blueLabel = Label(sliderFrame, text="Blue: ")
+
+redRGBValueLabel = Label(sliderFrame, text="0", width=3)
+greenRGBValueLabel = Label(sliderFrame, text="0", width=3)
+blueRGBValueLabel = Label(sliderFrame, text="0", width=3)
 
 # Create 3 "Scale" slider bars from 0 - 31 (32 values / 5 bits) to handle R, G, and B colors
-redSlider = Scale(root, from_=0, to=31, orient=tk.HORIZONTAL, command=updateSliders)
-redSlider.pack()
+redSlider = Scale(sliderFrame, from_=0, to=31, orient=tk.HORIZONTAL, command=updatePreviewFromSliders)
+greenSlider = Scale(sliderFrame, from_=0, to=31, orient=tk.HORIZONTAL, command=updatePreviewFromSliders)
+blueSlider = Scale(sliderFrame, from_=0, to=31, orient=tk.HORIZONTAL, command=updatePreviewFromSliders)
 
-greenSlider = Scale(root, from_=0, to=31, orient=tk.HORIZONTAL, command=updateSliders)
-greenSlider.pack()
+redLabel.grid(row=3, column=0)
+greenLabel.grid(row=7, column=0)
+blueLabel.grid(row=11, column=0)
 
-blueSlider = Scale(root, from_=0, to=31, orient=tk.HORIZONTAL, command=updateSliders)
-blueSlider.pack()
+redSlider.grid(row=0, column=1, rowspan=4, columnspan=4)
+greenSlider.grid(row=4, column=1, rowspan=4, columnspan=4)
+blueSlider.grid(row=8, column=1, rowspan=4, columnspan=4)
+
+redRGBValueLabel.grid(row=3, column=5, columnspan=2)
+greenRGBValueLabel.grid(row=7, column=5, columnspan=2)
+blueRGBValueLabel.grid(row=11, column=5, columnspan=2)
+
 
 palGridFrame = Frame(root, border=1, relief=tk.SUNKEN)
 palGridFrame.pack()
