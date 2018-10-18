@@ -16,7 +16,7 @@ from tkinter import Scale
 
 # Program Details
 programName = "3rd Strike Palette Editor"
-verNum = "0.4"
+verNum = "0.5"
 
 # Character Palette Start Addresses
 ALEX_PAL_ADDR   = 0x700600
@@ -65,6 +65,10 @@ class colorPalette:
         self.greenColorArray = []
         self.blueColorArray = []
 
+        self.redColorArrayBackup = []            # Backup arrays just in case we need a return to default option
+        self.greenColorArrayBackup = []
+        self.blueColorArrayBackup = []
+
         self.loadColors(singlePal)               # Calls function to get the color values for the arrays
 
     # Arguments: Opened bytearray read from the file, the starting address of where the colors are
@@ -74,6 +78,9 @@ class colorPalette:
             self.redColorArray.append(self.getColor(p, x, "red"))
             self.greenColorArray.append(self.getColor(p, x, "green"))
             self.blueColorArray.append(self.getColor(p, x, "blue"))
+        self.redColorArrayBackup = self.redColorArrayBackup
+        self.greenColorArrayBackup = self.greenColorArrayBackup
+        self.blueColorArrayBackup = self.blueColorArrayBackup
 
     # Returns the color from the bytes provided
     def getColor(self, p, addr, color):
@@ -113,6 +120,11 @@ class colorPalette:
         colorB = round(self.blueColorArray[colorNumber]/31*255)
         hexValue = "#%02x%02x%02x" % (colorR, colorG, colorB)
         return hexValue
+
+    def writeNewColorValue(self, pos, rc, gc, bc):
+        self.redColorArray[pos] = rc
+        self.greenColorArray[pos] = gc
+        self.blueColorArray[pos] = bc
 
     
 
@@ -164,7 +176,8 @@ class PaletteEditor:
             updateSB("Loaded %s into memory!" % openFilePath)
             openFile = open(openFilePath,"rb").read()
             
-            vencabot_frame.pack()
+            vencabot_frame.grid(row=0, column=0)
+            buttonSelectFrame.grid(row=0, column=1)
             selectedButtonColorPalette.pack()
             
             self.initCharPalClasses(openFile)
@@ -231,6 +244,7 @@ class SortableCharacterMenu:
                 command=updateColors)
         self.tk_menu.config(width=10, bd=1)
         self.tk_menu.pack()
+        
 
     def sort_abc(self):
         self._create_and_repack_menu(self.abc_char_list)
@@ -308,7 +322,14 @@ class PaletteGrid:
                 btn = selectedButtonColorPaletteVar.get()
                 bgColor = palEdit.palettes[charName].button[btn].outputColor(pos)
                 self.palGrid[pos].config(bg=bgColor)
-                
+
+    def updateGridPositionColor(self, rc, gc, bc, hexValue):
+        if self.palLoaded:
+            pos = self.selectedItem
+            charName = charListStr.get()
+            btn = selectedButtonColorPaletteVar.get()
+            palEdit.palettes[charName].button[btn].writeNewColorValue(pos, rc, gc, bc)            
+            self.palGrid[self.selectedItem].config(bg=hexValue)
     
     
 
@@ -381,14 +402,19 @@ def updateSliders(charName, btn, pos):
 
 def updatePreviewFromSliders(*_):
     if palGrid.palLoaded:
-        colorR = round(redSlider.get()/31*255)
-        colorG = round(greenSlider.get()/31*255)
-        colorB = round(blueSlider.get()/31*255)
+        rc = redSlider.get()
+        gc = greenSlider.get()
+        bc = blueSlider.get()
+        
+        colorR = round(rc/31*255)
+        colorG = round(gc/31*255)
+        colorB = round(bc/31*255)
         updateColorRGBLabel("red", str(colorR))
         updateColorRGBLabel("green", str(colorG))
         updateColorRGBLabel("blue", str(colorB))
         hexValue = "#%02x%02x%02x" % (colorR, colorG, colorB)
         palFrame.config(bg=hexValue)
+        palGrid.updateGridPositionColor(rc, gc, bc, hexValue)
 
 # Updates the frame color using the selected character name, column, and row
 #def updatePreviewColor(*_):
@@ -485,7 +511,10 @@ palFrame.pack()
 charListStr = StringVar(root)
 charListStr.set(START_CHAR)       # Sets default value for dropdown menu
 
-vencabot_frame = Frame(root)
+mainButtonsFrame = Frame(root)
+
+vencabot_frame = Frame(mainButtonsFrame)
+buttonSelectFrame = Frame(mainButtonsFrame)
 
 
 # Create the Vencabot example sortable drop-down menu.
@@ -524,7 +553,7 @@ sortable_character_menu = SortableCharacterMenu(vencabot_frame, charListStr)
 selectedButtonColorPaletteVar = StringVar(root)
 selectedButtonColorPaletteVar.set(buttonSelect[0])
 
-selectedButtonColorPalette = OptionMenu(vencabot_frame, selectedButtonColorPaletteVar, *buttonSelect, command=updateColors)
+selectedButtonColorPalette = OptionMenu(buttonSelectFrame, selectedButtonColorPaletteVar, *buttonSelect, command=updateColors)
 
 # Creates a Frame to contain all of the slider bars and labels
 sliderFrame = Frame(root)
@@ -560,10 +589,11 @@ blueRGBValueLabel.grid(row=11, column=5, columnspan=2)
 palGridFrame = Frame(root, border=1, relief=tk.SUNKEN)
 palGridFrame.pack()
 
+
 palGrid = PaletteGrid(palGridFrame)
 
 
-
+mainButtonsFrame.pack()
 
 
 
