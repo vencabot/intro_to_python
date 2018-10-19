@@ -16,7 +16,7 @@ from tkinter import Scale
 
 # Program Details
 programName = "3rd Strike Palette Editor"
-verNum = "0.5"
+verNum = "1.0"
 
 # Character Palette Start Addresses
 ALEX_PAL_ADDR   = 0x700600
@@ -24,7 +24,7 @@ RYU_PAL_ADDR    = 0x700980
 YUN_PAL_ADDR    = 0x700D00
 DUD_PAL_ADDR    = 0x701080
 NECRO_PAL_ADDR  = 0x701400
-HUGO_PAL_ADDR   = 0x701782
+HUGO_PAL_ADDR   = 0x701780
 IBUKI_PAL_ADDR  = 0x701B00
 ELENA_PAL_ADDR  = 0x701E80
 ORO_PAL_ADDR    = 0x702200
@@ -126,6 +126,23 @@ class colorPalette:
         self.greenColorArray[pos] = gc
         self.blueColorArray[pos] = bc
 
+    def returnColorBytes(self, pos):
+        rc = self.redColorArray[pos]
+        gc = self.greenColorArray[pos]
+        bc = self.blueColorArray[pos]
+        return (bc<<10) + (gc<<5) + rc
+
+    def returnPaletteColorBytes(self, a):
+        tempArr = a
+        for i in range(0,len(self.redColorArray)):
+            word = self.returnColorBytes(i)
+            bigByte = word >> 8
+            littleByte = word - (bigByte<<8)
+            tempArr.append(bigByte)
+            tempArr.append(littleByte)
+        return tempArr
+
+
     
 
 # Character Class - Contains 2 or 7 palette classes for each character - Shin Gouki is the only character with 2 palettes
@@ -160,6 +177,15 @@ class charPalettes:
             arr.append(fullPalArray[addy])
         return arr
 
+    def returnCharPalettes(self, a):
+        tempArr = a
+        if self.charName != "Shin Gouki":
+            btn = ["LP", "MP", "HP", "LK", "MK", "HK", "EX"]
+        else:
+            btn = ["LP", "MP"]
+        for i in btn:
+            tempArr = self.button[i].returnPaletteColorBytes(tempArr)
+        return tempArr
 
 
 # PaletteEditor Class - Houses functions for reading the opened file and initializes all character's classes
@@ -168,22 +194,68 @@ class PaletteEditor:
     # Defines the palettes dictionary
     def __init__(self):
         self.palettes = {}
+        self.srcFile = bytearray
+        self.destFile = bytearray
         
     # Defines the function to open the file selected and initialize the character classes
     def openFileCmd(self):
         openFilePath = filedialog.askopenfilename(title="Select File",filetypes=(("3s Character Palette (51) File","51"),("All Files","*.*")))
         if openFilePath != "":
             updateSB("Loaded %s into memory!" % openFilePath)
-            openFile = open(openFilePath,"rb").read()
+            self.srcFile = open(openFilePath,"rb").read()
+            fileDropDown.entryconfig("Save As...", state="normal")
             
             vencabot_frame.grid(row=0, column=0)
             buttonSelectFrame.grid(row=0, column=1)
             selectedButtonColorPalette.pack()
             
-            self.initCharPalClasses(openFile)
+            self.initCharPalClasses(self.srcFile)
             palGrid.updateGrid()
             updateColors()
             updateSB("Character Palettes Initialized!")
+
+    def saveFileCmd(self):
+        saveFilePath = filedialog.asksaveasfilename(defaultextension="", initialfile="51", filetypes=(("3s Character Palette (51) File","51"),("All Files","*.*")))
+        if saveFilePath:
+            self.destFile = bytearray(self.buildNewFileArray())
+
+            f=open(saveFilePath,"wb+")
+            f.write(self.destFile)
+            f.close()
+            
+
+    def buildNewFileArray(self):
+        newArray = bytearray
+        newArray = self.buildPrePaletteFile()
+        newArray = self.buildPalettes(newArray)
+        newArray = self.buildPostPaletteFile(newArray)
+        return newArray
+
+    def buildPrePaletteFile(self):
+        tempArr = []
+        for i in range(0,ALEX_PAL_ADDR):
+            tempArr.append(self.srcFile[i])
+        return tempArr
+
+    def buildPalettes(self, a):
+        tempArr = a
+        chrlist = [
+            "Alex", "Ryu", "Yun", "Dudley", "Necro", "Hugo", "Ibuki", 
+            "Elena", "Oro", "Yang", "Ken", "Sean", "Urien", "Gouki",
+            "Shin Gouki", "Chun Li", "Makoto", "Q", "Twelve", "Remy"]
+        for i in chrlist:
+            tempArr = self.palettes[i].returnCharPalettes(tempArr)
+        return tempArr
+
+    def buildPostPaletteFile(self, a):
+        tempArr = a
+        lenSrcFile = len(self.srcFile)
+        startPt = len(a)
+        dist = lenSrcFile-startPt
+        for i in range(0, dist):
+            tempArr.append(self.srcFile[startPt+i])
+        return tempArr
+
             
     # Defines all of the character classes and sends the needed data to be parsed for the individual palettes
     def initCharPalClasses(self, f):
@@ -482,6 +554,7 @@ charABCOrder.set(0)
 
 # Add options to the mainFileDropDown Cascade
 fileDropDown.add_command(label="Open", command=palEdit.openFileCmd)
+fileDropDown.add_command(label="Save As...", command=palEdit.saveFileCmd, state="disabled")
 fileDropDown.add_separator()
 fileDropDown.add_command(label="Quit", command=root.quit)
 
