@@ -1,7 +1,7 @@
 #########################################################################
 # pokemon_day_2_no_classes_commented.py                                 #
 #     - developed at twitch.tv/vencabot , Intro to Python 10/19/18      #
-#     - watch the archived stream at ___________________________        #
+#     - watch the archived stream at youtube.com/watch?v=js3y5mlTqdQ    #
 #                                                                       #
 # This is the second day (and second form) of our 'pokemon' project,    #
 # where we're learning the very basics of programming by creating a     #
