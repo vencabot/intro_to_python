@@ -1,7 +1,7 @@
 #########################################################################
 # pokemon_day_3_learning_classes_commented.py                           #
 #     - developed at twitch.tv/vencabot , Intro to Python 10/26/18      #
-#     - watch the archived stream at ___________________________        #
+#     - watch the archived stream at youtube.com/watch?v=RVy_2aFZXoo    #
 #                                                                       #
 # This is the third day (and third form) of our 'pokemon' project,      #
 # where we're learning the very basics of programming by creating a     #
