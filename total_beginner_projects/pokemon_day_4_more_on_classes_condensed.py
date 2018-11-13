@@ -65,3 +65,5 @@ class Pokemon:
 
 pokemon1 = Pokemon("cyndaquil", "fire", 55, 8, 2, [Tackle, CombHair])
 pokemon2 = Pokemon("squirtle", "water", 68, 6, 4, [Tackle, CombHair])
+
+pokemon1.move_dict["tackle"].use_on(pokemon2)
