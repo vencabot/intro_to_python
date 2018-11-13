@@ -1,7 +1,7 @@
 #########################################################################
 # pokemon_day_4_more_on_classes_commented.py                            #
 #     - developed at twitch.tv/vencabot , Intro to Python 11/09/18      #
-#     - watch the archived stream at ___________________________        #
+#     - watch the archived stream at youtube.com/watch?v=veflFJjfIKI    #
 #                                                                       #
 # We're continuing development of our Pokemon battle example as a way   #
 # to learn the very basics of programming.                              #
