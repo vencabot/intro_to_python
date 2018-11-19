@@ -1,7 +1,7 @@
 #########################################################################
 # pokemon_day_5_try_exceptions_commented.py                             #
 #     - developed at twitch.tv/vencabot , Intro to Python 11/16/18      #
-#     - watch the archived stream at ___________________________        #
+#     - watch the archived stream at youtube.com/watch?v=rJuaza3ssKg    #
 #                                                                       #
 # We're continuing development of our Pokemon battle example as a way   #
 # to learn the very basics of programming.                              #
