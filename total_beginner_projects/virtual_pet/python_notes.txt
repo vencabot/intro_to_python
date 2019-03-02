@@ -1,0 +1,49 @@
+Today we made our first game in Python, and it's kind of cool. What's cool about is that it's interactive and the choices we make have consequences within the game.
+
+As we repeatedly choose food types to feed to our pet, we influence how happy it is AND how hungry it is. Because our pet is only so hungry, it can only eat so many times. We feed it until it's full, and, as we feed it, we get an update on approximately how happy it is.
+
+To accomplish writing this simple game, we needed to know a few OPERATIONS in Python, including:
+    *) printing data to the screen using the 'print' function
+    *) getting data from the user using the 'input' function
+    *) doing math on integers using the '+' and '-' operators
+    *) combine strings using the '+' operator for strings
+    *) assigning names to data using the '=' operator
+    *) comparing strings to each other using the '==' operator
+    *) comparing integers to each other using the '>=' operator
+
+We also learned about different types of DATA within Python:
+    *) strings (or str) are textual data, typically for showing someone
+    *) integers (or int) are numerical data, for doing math behind
+       the scenes
+
+Finally, we learned about CODE BLOCKS, which are chunks of code that only run under certain circumstances and may run in a more convoluted way than just simply top-to-bottom:
+    *) 'if' blocks only run if their condition is True (boolean)
+    *) 'else' blocks only run if the attached 'if' block DOESN'T run
+    *) 'while' blocks run from top-to-bottom REPEATEDLY until their
+       condition is no longer True (boolean).
+
+To review how our game works, we start off by naming a bunch of values so that we can use those values later in our code. These names include 'pets_favorite_food,' 'pets_hated_food,' 'pets_happiness,' and 'pets_hunger'. The first two of these names represent strings. The second two of these names represent integers.
+
+After we name our values, we enter a 'while' block which runs repeatedly until the pet is full (pets_hunger < 1). Inside the while block, we choose what to feed our pet, and we change the pet's happiness based on what kind of food the player chose -- whether it be their favorite food, their most hated food, or some other kind of food.
+
+After the pet eats, we report to the player approximately how happy the pet is by running through a logic tree of 'if' and 'else' statements. Every time it eats, its hunger value goes down.
+
+Because the hunger will eventually be lower than '1', we'll drop out of the 'while' block at that point and the game will be over.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
