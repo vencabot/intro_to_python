@@ -1,0 +1,90 @@
+It's EPISODE 2 of SEASON 4, INTRO TO PYTHON! We're making a digital pet, sort of like a Tamagotchi or something.
+
+So, up to this point, our program is very simple: it asks for a name for your pet, and it asks for what kind of food you want to feed it. The pet has one kind of food that it LOVES, one kind of food that it HATES, and any other kind of food makes it a little bit less happy.
+
+Essentially, if we're looking at this pet as a 'game,' the goal would be to make the pet as happy as possible before it gets full.
+
+In our game, our 'pet' has two numerical attributes: happiness and how full it is. Depending on what you feed it, its happiness will change, and every time you feed it, it gets more full. The game is over once it's full.
+
+First of all, to make our good a bit easier to read, I want to introduce a new kind of code-block. Up to this point, we know about three kinds of code-blocks: 'while,' which will run repeatedly as long as its condition is true. 'if,' which will run once if its condition is true (and not at all if its condition is false). 'else,' which trails after an 'if' statement and will only run if the 'if' did NOT run (its condition was False).
+
+Our new kind of codeblock for today is 'elif'. Unlike the other code-blocks, this one doesn't really have a true English word to define. It's called 'elif'. It's just an 'else' block directly followed by an 'if' block, hence the name.
+
+This is a very common design pattern in Python (and other languages), and what's crazy about it is that you have to indent A LOT when you do this.
+
+Just like 'else,' 'elif' can only follow after an 'if' statement or another 'elif' statement. And finally, an 'if -> elif' block can be followed by an 'else' block which essentially means, "if none of the above were true, then do this."
+
+That's a cool way to start our stream, but why don't we add some new features to our game to make it a little bit more fun.
+
+Why don't we say that once the pet is FULL, it has to go to the bathroom. Once it's gone to the bathroom, it's hungry again. That's, uh... just like real life?
+
+If we can feed our pet as long as it's hungry, and if it poops once its full and then is hungry again, our game will never end.
+
+We can change the condition of our 'while' block.
+
+So we added a feature to our game where, if our pet is full it poops and then is hungry again. But that doesn't really get us anywhere, because the pet's happiness is just moving up and down forever. It's moving way above 100, sometimes, or way below 0. Nothing interesting is really happening in our game.
+
+Why don't have a feature in our game where, as long as our pet is happy it wants to play. If it's sad, it doesn't want to play.
+
+Why don't we program some game to play with our pet? Why don't we program 'fetch' into our game?
+
+First of all, our game only has one feature right now: feeding the pet. Right away, we should program a way to ask the pet if it wants to play fetch.
+
+'break' is a statement that will force a loop to end. In our case, we have an infinite loop (while True) that is going to keep us playing our game forever. Even though 'while True' will always continue to loop, we can actually force it to end by entering a 'break' statement. That will end the loop immediately.
+
+'break,' when used inside of a loop, will immediately END that loop. 'continue', when used inside of a loop, will SKIP THE REST OF THE LOOP and jump RIGHT BACK TO THE TOP.
+
+tf_dagger makes a point that our program, although it's very simple and we haven't really added many new ideas compared to our first stream -- it's getting a bit long. We have separate code-blocks for FEEDing the pet and, soon, PLAYING with the pet. On our next episode, we're going to learn how to write our OWN FUNCTION so that we can HIDE some of this code and make the overall experience a bit easier to read.
+
+We just added a test for happiness before we can play with our play. That's kind of cool, because it adds to our consequences to our game: if we haven't been feeding our pet the right stuff, it won't want to play.
+
+So now, why don't we get 'fetch' working in some kind of interesting capacity -- or as much as we can, as beginners.
+
+Our game is kind of cool, for a beginner project, but the problem with it is that we totally control our pet's happiness level based on what we feed it. Why don't we make the pet's happiness a little bit more difficult to deal with.
+
+I suggest we do this by having its happiness go down if it poops and we don't clean it up. Also, when we play, its hunger will go up -- and maybe if we play while it's very hungry its happiness goes down.
+
+Dagger points out that Python has kind of a cool feature that's shared among a few different languages, and that's a combined mathemtical operator and assignment operator.
+
+It's a pretty common process in programming to 'iterate' a value, which means to boost it by some given amount, repeatedly.
+
+So far, we've been doing that whenever we feed our pet and we do it using a line like this:
+
+pets_happiness = pets_happiness + 20
+
+We do a lot of these lines where all we do is raise or lower a value by some amount and then re-save it.
+
+Python and some other languages will give you a simplified operator for these kinds of statements, and it looks like this:
+
+pets_happiness += 20
+
+This line means, "take whatever this value was, add 20, and then re-save."
+
+pets_happiness -= 40
+
+This is called 'syntactic sugar,' which refers to any programming language grammar thats only purpose is to make things look neater. It doesn't add a new feature; it just makes things prettier.
+
+We've already learned about another piece of syntactic sugar, today, when we learned the 'elif' statement.
+
+So, we made some changes to our game where our pet's mood is a little bit less under our control. Now, it'll lose happiness whenever it's hungry and it loses even more happiness if you try to play with it while it's hungry.
+
+We still have some problems: for one thing, our pet's happiness can hypothetically go WAY ABOVE 100 and WAY BELOW 0 depending on what we do. We should probably implement some kind of limits and reward the player for hitting 100 and punish them for hitting 0.
+
+Basically, what therewillbememes is saying is that we learned a couple of cool statements, today, in "break" (immediately end a loop) and "continue" (immediately restart a loop). Another statement in Python is "pass," which is just a way to tell Python to do nothing. It's similar to a BLANK LINE, but there are situations where you can't use a blank line, such as on the first line of an 'if' statement or any other code block where you have to indent.
+
+In Python, if you don't want to do anything, you don't have to enter a command: just use a blank line.
+
+
+
+
+
+
+
+
+
+
+
+If I want to program in a feature LATER, though, and I want to just have some logic or other code-blocks that don't do anything, it's not as simple as putting in a blank line because code-blocks ALWAYS have to have something indented.
+
+if 1 + 2 > 0:
+    pass
