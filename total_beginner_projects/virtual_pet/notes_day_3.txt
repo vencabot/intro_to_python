@@ -1,0 +1,65 @@
+Today, we made a LOT of changes to our program without changing the way that it actually WORKS at all. As far as the PLAYER is concerned, we didn't change anything -- but what we did behind the scenes is significant.
+
+We made our code more 'elegant.' That's a responsibility that you're gonna have as a programmer as you become more skilled and more comfortable with programming. Often-times, making your program work isn't enough, because it's going to be difficult for you to come back to that code a few months down the line and add features to it -- because it's gonna be hard to read.
+
+By making your code more 'elegant,' you can make it easier to read and easier to enhance in the future.
+
+So, how did we make our code more elegant today?
+
+We took our main game-loop's logic tree (the series of 'if / else' statements which determine what happens in the game) and we broke it up into some smaller, more manageable pieces. This means that, in the future, if we want to add NEW commands to our game, we don't need to constantly scroll through hundreds of lines of code just to find out where we want to make our changes.
+
+By putting all of the programming for 'feeding' the pet into its own FUNCTION, we can sort of encapsulate that code as being distinct in purpose: all it does is feed the pet. All the data that it needs to feed the pet, it takes in as arguments. All of the data that it CHANGES in the game, it returns out. So, it becomes very clear what data we NEED TO KNOW to feed the pet and WHAT'S BEING CHANGED when we feed the pet.
+
+We did the same thing with the code for playing with the pet.
+
+By creating this functions, we make it more clear exactly what's happening in our main loop. When the player types in 'feed,' we RUN A FUNCTION for feeding the pet. If they type in 'play,' we RUN A FUNCTION for playing the pet.
+
+We decided, for now, that the other commands were simple-enough to not require their own functions to hide the complexity.
+
+Today was our first day creating our functions. Previously, we'd been using a couple of Python's built-in functions, including 'print' (which takes an argument to show on the screen), and 'input' (which takes an argument to prompt the user with and returns whatever the user typed in). Those functions are awesome, but because our code is becoming more complex and longer every day, it became important for us to learn how to make our OWN functions as a way to separate our code into bite-sized chunks and also to allow us to repeatedly execute code without having to type it a hundred types.
+
+Functions take ARGUMENTS to get data INTO them and then, because changes made WITHIN A FUNCTION don't necessarily reflect into the world OUTSIDE of the function (this is called 'scoping'), we RETURN some data OUT so that the program-at-large can then save that data over whatever values need to be updated.
+
+We learned that, if you want to combine multiple values into a SINGLE value (such as to 'return' it), you can do using a new DATA TYPE called a 'tuple'!
+
+We know about 5 data-types now:
+    *) 'Strings,' which represent textual data.
+    *) 'Integers,' which represent whole numbers.
+    *) 'Booleans,' which represent 'True' or 'False' values.
+    *) 'Functions,' which can be called to do stuff.
+    *) 'Tuples', which are containers for multiple other values.
+
+Tuples are interesting because you can access their data using 'index' numbers. For instance, if you have a tuple that describes an 'apple,' it might look like this:
+
+apple_tuple = ("gala", .5, "red", "super market")
+
+You can access the individual pieces of data in your typle by using an 'index' notation where the tuple name is followed by square-brackets, between which are the index number for the value that you want out of your tuple:
+
+apple_type = apple_tuple[0]
+apple_weight = apple_tuple[1]
+apple_color = apple_tuple[2]
+bought_apple_at = applle_tuple[3]
+
+For our NEXT EPISODE, we're going to learn about the differences between MUTABLE and IMMUTABLE data-types!
+
+Up to this point, all of our data-types have been IMMUTABLE, which means that, once you define them, they can't be changed.
+
+Right away, you're thinking, "Well, we've been changing a lot of values! Is 'pets_happiness' immutable? We've been changing it."
+
+We haven't been changing the value.
+
+We've been changing WHICH value is ASSOCIATED with the name 'pets_happiness,' by using the assignment operator (=). But the value ITSELF has not been changing; we've just been swapping values for that variable name.
+
+That's kind of counter-intuitive, but it becomes more important as time goes on, because you're going to see situations where, if you don't understand the difference between a VALUE CHANGING and a VALUE BEING SWAPPED OUT, it's going to cause problems with your code.
+
+For instance, we talked about ARGUMENTS today and RETURN VALUES, and how what happens in a function stays in a function.
+
+That's because, when you feed an integer into a function as an argument and then you CHANGE that integer, YOU ARE NOT CHANGING THE INTEGER THAT YOU WERE FED AS AN ARGUMENT; what you're actually doing is replacing that value with something new.
+
+In the hypothetical case (which isn't going to be so hypothetical next week) that you were to feed a MUTABLE object into a function as an argument, the function COULD ACTUALLY change that value -- and then that change would be reflected OUTSIDE of the function as well, because the actual value, itself, that was fed in, was intrinsically changed.
+
+So far, all of our data-types are IMMUTABLE -- they CAN NOT be mutated -- and so, whenever a variable name is being updated, its old value is being discarded and a new variable is being made that just-so-happens to have the same name.
+
+We're gonna learn next week how to use MUTABILITY to make our code even MORE elegant, and then we can start looking at how all of these improvements to our code's elegance are going to make it easier to add new features.
+
+Through today's entire stream, we didn't really add any new features to our game -- but we did lay the ground-work to make it more easy to add new features in the future. Once we discover MUTABILITY, we can dramatically improve our codes readability and, by extension, make it way easier to add new features and new segments and new characters and new items to our game.
