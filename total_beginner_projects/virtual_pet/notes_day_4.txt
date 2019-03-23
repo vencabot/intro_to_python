@@ -1,0 +1,155 @@
+It's Intro to Python Season 4, Episode 4, and we're continuing to work on our virtual pet example. Right now, the program is FUNCTIONAL and it has a lot of values that are changing -- and, based on what the values end up being, different things happen.
+
+In other words, we have a fully-working game. That's how a game works. Already, our player can make decisions that have consequences within the game which can result in them being rewarded (the pet is happy and excited to play) or being punished (the pet bites them and it's game over).
+
+In the last episode, we didn't really add any new features. Instead, we talked a lot about code elegance and how to use FUNCTIONS to make our code a bit more readable and manageable.
+
+Today, we're gonna be doing that again: we're gonna learning some cool features of Python and programming-in-general that are gonna allow us to make our code even SIMPLER and MORE READABLE and EASIER TO ADD TO without necessarily changing the program's features.
+
+On the other hand, unlike last time, we're also going to be applying some of the things we're learning to add new features to our game as well.
+
+So, what are we talking about today?
+
+So far, we have a few different types of DATA in our toolset as beginner programmers: we have STRINGS (textual data), we have INTEGERS (mathematical data), we have BOOLEANS (True / False data), we have FUNCTIONS (data that, when used, runs code). Also, we now have TUPLES (data that contains other data).
+
+Strings
+Integers
+Booleans
+Tuples
+Callables
+
+All of these pieces are data are used in different ways and they empower, as creative people, to make different kinds of programs. But, they all have one thing in common: they're all IMMUTABLE.
+
+'Mutability' refers to a piece of data's ability to MUTATE or CHANGE. All of these kinds of data are IMMUTABLE, which means that, once they're created, they cannot be changed -- and that has some PROS and CONS associated with it.
+
+But before we go too far into that, questions immediately arise: how can some of these be 'immutable,' or unable to change, when, in our code, these pieces of data are changing all the time.
+
+For example:
+
+pets_happiness = 50
+if fed_food == pets_favorite_food:
+    pets_happiness += 20
+
+In those three simple lines, we define a new piece of named data, "pets_happiness," and then we change that data, right? How is that immutable?
+
+Well, this is kind of counter-intuitive, and, as total beginners, I loathe that we have to explain it so soon, but bear with me: this is important to understand as you get stronger as programmers.
+
+When you use the assignment operator, "=", you are creating a whole new name that may just so happen to be the same as one you used before.
+
+In the example above, we are not taking pets_happiness and INCREASING it. As people with HUMAN BRAINS, that's how we INTERPRET IT, but on the machine level, what's happening is that we're defining a name called "pets_happiness," and then we are replacing that name with a brand new pets_happiness.
+
+We talked before about how the += operator (that we used above) is 'syntactic sugar,' which means that it's just there to make things LOOK pretty. Let's take that out and see what's really happening, here:
+
+pets_happiness = 50
+if fed_food == pets_favorite_food:
+    pets_happiness = pets_happiness + 20
+
+With that explanation, I think that you guys are quick enough to understand what's happening. But that also raises another VERY GOOD QUESTION: if this is how data works in Python, where previous bits of data are internally REPLACED with BRAND NEW PIECES OF DATA, then are there 'mutable' pieces of data? What would cause a piece of data to be 'changed' then, rather than replaced?
+
+Today, we're gonna learn about some MUTABLE data types and why they're so damn important and powerful, and we might even talk about some of the shortcomings of mutable data types and why some programmers prefer to use IMMUTABLE data types whenever possible.
+
+The first new kind of data we're gonna learn about is a 'list'. This is SUCH a powerful data type and it's going to take your programs, as a beginner, to a whole 'nother level. There's no comparison anymore; you're gonna very suddenly be able to make some KILLER programs.
+
+A 'list' is a lot like a 'tuple'. Like a tuple, it's a single piece of data -- a 'box' -- that contains other pieces of data. In fact, you'd be forgiven for thinking, at first, that they work exactly the same way. Like, exactly. Here's an example:
+
+# This is a tuple.
+harsimus_data = ("harsimus", 65, 8, 3, "assassin")
+harsimus_name = harsimus_data[0]
+harsimus_age = harsimus_data[1]
+harsimus_height_feet = harsimus_data[2]
+harsimus_height_inches = harsimus_data[3]
+harsimus_profession = harsimus_data[4]
+
+# This is a list.
+friends = ["harsimus", "kreichjr", "dixxucker", "mrpart2", "black_jalapeno"]
+first_friend = friends[0]
+second_friend = friends[1]
+third_friend = friends[2]
+
+That begs the question: how are they different? Well, for one thing, CONCEPTUALLY -- theoretically, abstractly -- they meet different needs. A 'tuple' is a bunch of related data that, together, serves some purpose. In our example, we created a tuple that explains a bunch of different things about harsimus.
+
+On the other hand, a LIST is a SEQUENCE of data. It's a subtle difference, but our list of friends is a BUNCH of the SAME THING -- names -- in a list, where-as our tuple was a bunch of DIFFERENT THINGS that all work together to do one job: describe harsimus.
+
+That's the conceptual difference between tuples and lists. They meet different needs.
+
+But, in terms of Python, what's really different about them is that 'lists' are mutable. They can be changed. Let's say that I have this list of friends, and I make a new friend. One thing that I can do with a list that I can't do with a tuple is add a new piece of data to this list.
+
+friends.append("overlordsteve")
+
+So, now our list of friends has a new piece of data added to it. If harsimus really hurts my feelings, I can remove him from my list of friends:
+
+friends.remove("harsimus")
+
+In comparison, if we wanted to do something similar with tuples -- such as to add a new piece of data to describe harsimus -- we would need to make a brand new tuple like this:
+
+new_harsimus_data = (harsimus_data[0], harsimus_data[1], harsimus_data[2], harsimus_data[3], harsimus_data[4], "makoto")
+
+We used the data from the FIRST tuple and we made a brand new tuple.
+
+Okay, so... in an abstract sense, I think we all understand that: sometimes, in programming, you have to create ENTIRELY NEW data that RESEMBLES your old data. Other times, you can just CHANGE your existing data; the first is IMMUTABLE, and the second is MUTABLE.
+
+We understand that much, but why? How do we make use of this knowledge?
+
+On stream, we just discussed how mutability plays a factor in how we use the arguments that a function is given. If a function is given an IMMUTABLE argument, however it chooses to use that argument in its code, the outside world that FED it the argument will always have the ORIGINAL value stored. So, if a new value is assigned to the same name WITHIN the function, that doesn't matter: outside of the function, that name still refers to the ORIGINAL, immutable value.
+
+What happens in your function, stays in your function. When you define or REDEFINE a NAME in your function, that doesn't change any of the names OUTSIDE of the function. If you feed a function a "pets_happiness" value that's 50, the name "pets_happiness" outside of the function will STILL BE 50 when the function ends, regardless of whatever names are being defined or redefined inside of the function.
+
+We can make a brand new integer inside of our function and call it "pets_happiness," but that doesn't have an impact on the names that exist OUTSIDE of the function, so "pets_happiness" outside of the function still refers to 50 even if, inside of the function, we said, "pets_happiness = pets_hapiness + 20". In that example, within the function, we are making a new integer -- 70 -- and we are giving it the name "pets_happiness," which only works inside of the function.
+
+On the contrary, if we feed a function a MUTABLE, CHANGEABLE piece of data, that value can be changed within the function and those changes will be reflected outside of the function -- because, unlike with an integer or string or tuple or whatever, we're not talking about creating a NEW NAME with a NEW VALUE. We're talking about taking this OBJECT that we were given and ALTERING it.
+
+So, outside of the function, that list has changed. We're not talking about creating a new variable inside of the function that only exists inside of the function. We're taking the very object we were given and altering.
+
+We kind of understand how mutability has an advantage over immutable objects.
+
+Immutability, at a higher level of programming, arguably has advantages over mutability because, once you start changing values 'behind the scenes' within functions, you can run into bugs VERY quickly where you forget what values you changed and where. By explicitly feeding arguments to functions, not changing anything WITHIN those functions, and then explicitly getting new data OUT of those functions (with 'return'), you can make it very clear how your program is working. Once you start changing data within your functions, it can become much more difficult to know where and why things are happening.
+
+We're going to put 'lists' on the backburner for a few minutes and talk about our second and final MUTABLE data-type for today: dictionaries. I wanted to bring up lists, first, because they're a lot like lists -- and lists are a lot like tuples.
+
+In a list AND a tuple, you package a bunch of data together and access that data by an 'index' number, which represents the order in which the data appears. Index '0' is the first slot of data, index '1' is the second slot of data, and so-on.
+
+A dictionary is ALSO a package of other pieces of data. It's exactly the same, it would seem -- HOWEVER, the data inside of a dictionary is not accessed by index number, in order. Instead, the data is accessed by a 'key', which is ANOTHER PIECE OF DATA. Watch this:
+
+food_by_color = {"red": "apple", "yellow": "banana", "purple": "grape", "orange": "orange"}
+
+# To get 'apple' out of the dictionary, I can use this:
+red_fruit = food_by_color["red"]
+
+As you can see, we got 'apple' out of the dictionary in much the same way that we would have if it'd been a list -- but instead of using an index number representing the ORDER of the elements, we accessed the value by its KEY.
+
+And, just like a list, dictionaries are MUTABLE, so we can add new keys and values to the dictionary quite easily, as well as swapping out values.
+
+food_by_color["green"] = "pear"
+
+Likewise, we can reassign values:
+
+food_by_color["red"] = "raspberry"
+
+We can also remove values entirely, using the 'del' keyword.
+
+del food_by_color["green"]
+
+Before we get back into our code and see how all of these new data-types are gonna help us, let's review the data-types that we have to work with, now:
+
+strings (text)
+integers (math)
+booleans (logic)
+callables (functions)
+tuples (a box of data for a single purpose)
+
+lists (a sequence of similar data)
+dicts (data organized and fetchable by key rather than order)
+
+The first thing I'm gonna do is use a dictionary to SIMPLIFY our functions by packaging the entire STATE OF THE GAME into one piece of data (a dict) that we can change and mutate on the fly. That way, our functions can all look uniform when we call and use them -- they don't have a million unique arguments return values.
+
+I've talked about how MUTABILITY can make a program SIMPLER but perhaps at the cost of making it harder to keep CLEAN.
+
+IMMUTABILITY can make your program VISUALLY much more COMPLEX and difficult to manage in THAT respect, but it makes it a lot easier to solve bugs in the long run.
+
+No single approach -- avoiding IMMUTABILITY or avoiding MUTABILITY -- is going to make a great program. You have to leverage the advantages of both in order to create a beautiful program.
+
+In our case, as beginners, we're learning about MUTABILITY as a way to simplify and make more uniform the way that our FUNCTIONS behave. We're explicitly feeding them only ONE argument now, and we're allowing the functions to make changes to the game-state without having to explicitly return new values that we have to deal with.
+
+So, on the one hand, our program is going to start looking a LOT simpler, and that's awesome. That's really awesome.
+
+On the other hand, I want to clarify that we are now BREAKING THE RULE that I've been stressing since the beginning of our last stream: "what happens in the function STAYS in the function."
