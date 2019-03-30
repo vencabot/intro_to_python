@@ -1,0 +1,97 @@
+In the past, one thing we've focused on a lot in our code is readability. I think that programmers at all skill levels underestimate how important it is for your code to be readable. If your code is difficult to understand at a glance, it's going to be difficult for you to maintain enthusiasm about continuing to work on it as it gets longer and more complex.
+
+Back when I was new, I would sort of lose touch with my own projects after they reached a certain level of complexity, because, you want to continue adding features but it becomes more and more difficult to know how and where to add them as your program gets longer and longer. So, a big part of programming is not just figuring hout how to solve the problems you need to solve in order to make it work the way that you want to work it -- you also have to figure out how to lay it out. It's sort of like engineering, or design; you have this big text document (or, in the future, many separate text documents), and it becomes your job to decide how its laid out.
+
+And as you do that, I stress that you consider readability. Making it clear how it works and breaking it into small but sensible pieces so that, when you want to work on just one PART of your program, you can do so easily without having to worry too much about the other parts.
+
+Last time, we touched on the subject of MUTABILITY. We discussed how many data-types cannot be altered once they're created, but others -- such as lists and dictionaries -- can ahve their values updated over time. We discussed how this can be empowering because it allows us to SHARE a single piece of data across multiple functions such that the function, itself, can alter the data and other functions and scopes can have access to those changes.
+
+So, when we first introduced functions we looked at them as doing a very clear job: taking INPUT (arguments) and producing OUTPUT (return values). Because of what's called 'scope' in programming, functions don't have access to the same variables that you've created outside the function (they do sometimes, but that's outside of what we're talking as beginner).
+
+So, if you want for a function to know anything about the world outside of it, you have to supply that data as arguments. That's effectively, for now, the only way to get data into a function.
+
+For the same reason (scope, or 'the scope of the function'), if you define data INSIDE of a function, that data does not exist OUTSIDE of the function. So you can think of a function as its own little program: the only data is has access to is the data that it DEFINES or TAKES AS INPUT, and the data that you define inside of it can't be used outside of it unless it RETURNS that data to the scope that called the function.
+
+"What happens in a function, stays in a function."
+
+That's what we learned early on, but it's not necessarily true; that's true when you supply IMMUTABLE data as the function's arguments. If a function takes a piece of MUTABLE as an argument -- data that can be MUTATED -- then a part of what that function is likely to do, as its job, will be to MUTATE that data. And what's interesting about is that, even in other SCOPES -- such as outside of function -- that mutation will be respected.
+
+A function's job is to do two things:
+
+It can take input and return output.
+It can take mutable input and mutate that input.
+
+By its very nature, a function's purpose is to do a job. So it's always going to be doing one of those two things or both (although that might not be recommended, because it can get confusing).
+
+So, we've learned a lot about different kinds of data over the past few streams. Most of it has been immutable:
+
+Integers.
+Strings.
+Tuples.
+Callables.
+Booleans.
+
+In our last stream, we learned about a couple of mutable data types:
+
+Lists.
+Dictionaries.
+
+But TODAY we're going to be talking about a very powerful type of data that has become the basis for all of modern programming: the 'object'.
+
+In fact, pretty much every type of data that we've talked about so far is some kind of 'object' in Python. Objects are complex pieces of data -- so complex that some programmers regard them as being dangerous and maybe overly-prone to bugginess, because of their complexity -- but they're very powerful, they're extremely useful, and, maybe most importantly, they can be used to make your code more sensible, easier to read, and very, very flexible.
+
+What is an object? An object is a piece of data that OWNS a bunch of other pieces of data. It's a way of organizing data.
+
+In Python -- and most other object-oriented programming languages -- ownership of data and functions is expressed using the '.'
+
+So, if we were to say something like:
+
+vencabot.real_name = "David"
+
+What we're saying is that 'vencabot' has a lot of data about him, but one of those pieces of data is his real_name, and it points to a string representing his real name.
+
+We could also say:
+
+vencabot.travel_to("grocery_store")
+
+Now, the object 'Vencabot' has a FUNCTION that he owns that defines what he does: he goes to the grocery store.
+
+Data that's under the ownership of an object is referred to as an 'attribute' of that object.
+
+Functions that are under the ownership of an object are referred to as 'methods' of that object.
+
+By making effective use of objects, attributes, and methods, we can make our programs much easier to read and much easier to write, which means that we can make more complex, more powerful, and more flexible programs a lot easier.
+
+To that end, why we don't we look at our existing virtual pet code and see how we can reinterpret what we've accomplished so far in the context of OBJECT-ORIENTED PROGRAMMING: breaking ideas up into objects which can have attributes that describe them and methods that they DO.
+
+But before we start breaking up our program and making it object-oriented, we should probably talk about 'classes'.
+
+Classes are the primary way that 'objects' are manufactured. They define what a type of object might have in the way of attributes and methods before it's even created.
+
+For instance, lets say that we wanted for our game to have two pets. What would these pets have in common?
+
+Well, we know that have these attributes, atlhough they might differ between pets:
+
+Pets have a favorite food list.
+Pets have a hated food list.
+Pets have a pet_name.
+Pets have a happiness level.
+Pets have a hunger level.
+
+So, by defining a CLASS that defines what makes a 'pet,' we can make it very easy to create a ton of pets in our game.
+
+Let's do that right now; in fact, I've already gotten started.
+
+You can think of classes as being MOLDS for objects. The class, itself, defines what the object will be, and when you use the class-name followed by parentheses, you manufacture an INSTANCE of that class. The INSTANCE represents an object that was created from a class.
+
+What's really powerful about OBJECTS -- about attributes and methods -- is that, when you have a method that's owned by an object, it HAS ACCESS TO ALL OF THAT OBJECT'S ATTRIBUTES AND METHODS.
+
+We talked before about how FUNCTIONS can only access the data that's given  to them as an argument.
+
+This makes writing them kind of a pain, sometimes, because you have to explicitly give the function every piece of data that it needs to do its job.
+
+We KIND OF solved that problem by explicitly giving all of our functions the same, massive, mutable piece of data: the gamestate. It simplified the arguments that we had to give it, but it didn't do much in the way of organizing our code because not every function in the game needs access to every piece of data in the gamestate.
+
+If I give a function the whole gamestate as an argument, it doesn't make my life any easier when I want to glance at the function and decide what sort of data it needs and what sorts of data it's changing.
+
+What's cool about objects is that we're assuming that, because all of their attributes are related DIRECLTY TO THAT OBJECT, and because all of its methods are related DIRECTLY TO THAT OBJECT, it's pretty safe to assume that it needs to know the attributes about itself to do its job.
