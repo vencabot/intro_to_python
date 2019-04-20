@@ -1,0 +1,403 @@
+When we talk about DATA in our programs, we're talking about the information that we're saving and moving around -- manipulating, using, calculating -- to make our program work.
+
+For instance, in a video game, the 'data' might be things such as the character's POSITION, or their AMMO. And as the game goes on, these values are going to come into play and they're going to change. In the case of a character's position, it's used to know where to draw the player character or what environment to draw around them -- but that value is also MANIPULATED whenever the player wants to move.
+
+The 'ammo' data is the same: it's used when we want to show the player how much ammo they have, but it's also manipulated every time they pick up ammo or fire a shot.
+
+So, usually, on episode 1 of our seasons, we talk about how programs are made up of essentially two things: DATA and OPERATIONS. The data is the information and the operations are what your program does to and with that data.
+
+Today, we're talking a lot about data, because we're looking at some of the most complex aspects of how data is stored and accessed and manipulated within a simple program.
+
+So, first of all, what kinds of data are we talking about when we're thinking of simple programs. Well, Python (and most other languages) come with a bunch of data-types built in (such as 'numbers' and 'text' or 'true or false' values) on top of allowing the programmer to create their OWN, more complex types of data (such as 'player state,' 'driving history', 'student loan balances').
+
+A lot of this data is going to change -- be altered, or be 'mutated'. When data is designed to be mutated (altered, changed), we say that it's MUTABLE.
+
+On the other hand, some types of data can not be mutated; they can only be CREATED and DESTROYED. In these situations, if you want for data to APPARENTLY change, you have to DESTROY the old value and REPLACE IT with a new value. Data like this is called IMMUTABLE, because it cannot be mutated.
+
+So, what is the difference between taking an existing piece of data and MUTATING IT versus taking an existing piece of data and DESTROYING IT and REPLACING it? On the surface level, these seem like the exact same idea.
+
+The difference is all about how data is SAVED, STORED, and ACCESSED. In other words, it has everything to do with how the data is USED, and that's why it's a bit difficult to get a grasp on at first.
+
+Let's look at some examples.
+
+# When you assign a name to a piece of data, that's all that you're doing.
+# This is a bit difficult for beginners to comprehend, who want to think
+# of their variable as being a sort of changeable object in itself.
+# That's why, in Python, you don't hear the word 'variable' as much as you
+# hear the word 'name'.
+
+my_number = 1
+second_number = 2
+
+my_number = 5
+
+# What's interesting about this is that you'd be forgiven, as a
+# beginner programmer for conceptualizing this process as changing the 1
+# to a 5.
+# You might think that because your equations that include the name
+# 'my_number' are still treated and running exactly the same way as they
+# did before. It's just that the value of 'my_number' has changed.
+# That's not strictly the case.
+# What we've actually done is create a whole new integer and INCIDENTALLY
+# give it the same name that a previous value used to hold.
+
+# What makes this so difficult to internalize is that, as far as the code
+# is concerned -- as far as WE are concerned, for the most part -- there
+# is no difference between 'changing a 1 to a 5' and 'replacing a 1 with
+# a 5'.
+
+# Any time you use the assignment operator, '=', you are assigning a new
+# name to a value. If that name had previously been in use, that value is
+# no longer accessible by that name. You can only have one value per name,
+# and names can be -- and often are -- reused.
+
+print(my_number + second_number)
+
+
+# Let's talk right away about why it's important that we understand the
+# way that name-assignment works in Python.
+
+# The first problem that a beginner is going to run into with names is
+# in the case of function arguments.
+
+# Let's make a function that takes some arguments.
+
+def name_changer(birth_name, way_cooler_nickname):
+    print("Your name was " + birth_name)
+    birth_name = way_cooler_nickname
+    print("Your name is " + birth_name)
+
+my_birth_name = "David"
+my_nickname = "DaGawd"
+
+name_changer(my_birth_name, my_nickname)
+
+print("My name is " + my_birth_name)
+
+# Whenever you re-use a name, you are not CHANGING anything about the
+# value. You're just taking that old name and giving it to something else.
+
+
+# Let's talk about scope and how that affects our understanding of names.
+# Today, we're talking all about names and how they can be more confusing
+# than they first appear on Intro to Python Ep. 1.
+
+def attack_player(player_hp, enemy_attack_power):
+    # We can do as much math in here as we want.
+    # It can essentially never affect the outside world (outside of
+    # mutability, which we're gonna talk about shortly), unless we find a
+    # way to ELEVATE the values out of this scope (using 'return').
+    
+    player_hp = player_hp - enemy_attack_power
+    print("The enemy did " + str(enemy_attack_power) + " damage!")
+    print("Inside of this function, player_hp is " + str(player_hp))
+    return player_hp
+
+player_hp = 10
+enemy_attack_power = 7
+
+whatever_name_we_want = attack_player(player_hp, enemy_attack_power)
+
+print("Outside of the function, player_hp is " + str(whatever_name_we_want))
+
+print("The player has " + str(whatever_name_we_want) + " HP remaining.")
+
+print("Because it was never re-assigned in the global scope, 'player_hp' still refers to " + str(player_hp))
+
+# The name 'player_hp' has two different values based on the scope of
+# where it's being used.
+# It has one value at the attack_player function-level scope.
+# It has one value in the program's 'main' or 'global' scope.
+# This is why you'll often see programmers being careful about how they
+# re-use the same name in different scopes. In can get kind of confusing.
+
+# If we want to ELEVATE values out of their limited scope, we can use the
+# 'return' operation.
+
+# Now, let's look at how naming and scoping impacts the way that we use
+# data when that data is MUTABLE.
+
+def add_david_to_list(some_list):
+    some_list.append("david")
+
+first_list = ["Kenny", "Jonathan", "Cameron"]
+
+add_david_to_list(first_list)
+
+print(first_list)
+
+# The names inside of a function are scoped. The values that you get as
+# arguments are the same VALUES that exist in the scope where the
+# function was called (in this case, the global or 'main' scope).
+# It's just that the NAMES don't necessarily carry over between scopes.
+
+# In the case of our 'player_hp' example, we were reassigning THE NAME
+# 'player_hp' to an entirely different integer within our function.
+# Therefore, that new name (even though it was the same as a previous
+# name) and that new integer were scoped to exist only within that
+# function.
+
+# In this case, we're taking a list as an argument -- and, JUST AS IN THE
+# CASE of our old attack_player function, the VALUE of that argument is
+# the same as the VALUE of what we got in.
+
+# The difference is that integers, like hp, are IMMUTABLE. We did some
+# math USING that number, but, in order to get a new number from that
+# math, we gotta make a new number.
+
+# A list is MUTABLE and has a METHOD, 'append', which can add items to
+# that list.
+
+# Now, let's see how this scoping and workflow behaves when we choose NOT
+# to take advantage of the MUTABILITY of lists.
+
+# There's a big difference between making a new list inside of a function
+# using an existing list
+# vs
+# Taking the list that we got as an argument and changing that list.
+# The difference is a matter of scope.
+# Whenever you assign a name within a function, that name can only be
+# used inside of that function.
+# Whenever you create some new data inside of a function, that data can
+# only be used inside of that function unless you 'return' it out.
+# It's all about scope. And mutability.
+def add_david_to_list(some_list):
+    some_list = some_list + ["david"]
+    # Let's take advantage of the mutability of our list argument.
+    #some_list.append("david")
+    print("Inside the function, some_list is " + str(some_list))
+
+
+first_list = ["Kenny", "Jonathan", "Cameron"]
+
+add_david_to_list(first_list)
+
+print("Outside the function, some_list is " + str(first_list))
+
+
+
+# We're going to use what we know about NAMING in Python and SCOPING in
+# Python to look at a problem that you're gonna see time and time again:
+# the mutability of class variables in Python.
+
+class CoolGuy:
+    # When a class is defined, the values of the class variables are
+    # created.
+    # Every instance of that class has access to these values through the
+    # name of the class variable.
+
+    # Every instance of CoolGuy has access to this 'True'.
+    has_cool_hair = True
+    # Every instance of CoolGuy has access to this list.
+    in_pockets = ["sunglasses", "comb", "picture of their girlfriend", "black leather wallet with a chain"]
+
+    # Immediately, it's important that we understand mutability.
+    # It's important that we understand that this 'True' and this list
+    # are shared among all instances of CoolGuy.
+
+    def __init__(self, cool_guy_name):
+        self.cool_name = cool_guy_name
+
+kenny = CoolGuy("Kenny")
+signopt = CoolGuy("signopt200")
+vencabot = CoolGuy("Vencabot")
+
+# We are overwriting the name 'vencabot.has_cool_hair' with a brand new
+# value. We are not mutating any existing 'True' to 'False'.
+# We are just replacing the name 'vencabot.has_cool_hair' with False.
+vencabot.has_cool_hair = False
+
+# This first line does not point to the value that was defined by the
+# class. We reassigned this name to a new value.
+print(vencabot.has_cool_hair)
+
+# Both of these lines point toward the same value that was defined by the
+# class. We never reassigned these names to point to anything else.
+print(kenny.has_cool_hair)
+print(signopt.has_cool_hair)
+
+# Both signopt and Kenny never replaced their reference to the original
+# 'True', so kenny.has_cool_hair and signopt.has_cool_hair still point to
+# that original 'True'.
+
+vencabot.in_pockets.append("Nintendo DS")
+# This line of code does not reassign any names nor does it create any
+# new lists.
+# It takes the list that vencabot.in_pockets refers to and adds a new
+# value to that list.
+
+print(kenny.in_pockets)
+print(signopt.in_pockets)
+print(vencabot.in_pockets)
+
+# Remember that kenny.in_pockets, signopt.in_pockets, and
+# vencabot.in_pockets are all names that point toward the same list.
+
+
+
+# Let's fix our CoolGuy so that they all have unique pockets instead of
+# sharing a single pocket.
+
+class CoolGuy:
+    has_cool_hair = True
+    #in_pockets = [
+    #        "sunglasses", "comb", "picture of girlfriend",
+    #        "black leather wallet with a chain"]
+
+    def __init__(self, cool_guy_name):
+        self.cool_name = cool_guy_name
+        # Every time an object is instantiated from this class, __init__
+        # is run and this list is created.
+        self.in_pockets = [
+                "sunglasses", "comb", "picture of girlfriend",
+                "black leather wallet with a chain"]
+        # It's a matter of scope. This list exists within the function,
+        # '__init__'. Whenever '__init__' is called, this list is
+        # created.
+
+        # We discussed before that when a NAME and DATA is assigned
+        # within a function scope, that NAME and DATA ceases to exist
+        # once the function ends.
+
+        # However, we learned that, when you supply a MUTABLE OBJECT as
+        # an argument to a function, you can make changes to that
+        # MUTABLE OBJECT that are persistent outside of that function.
+
+        # Well guess what, mother fuckers. 'self' is a mutable object.
+
+kenny = CoolGuy("Kenny")
+signopt = CoolGuy("signopt")
+vencabot = CoolGuy("vencabot")
+
+vencabot.has_cool_hair = False
+
+print(vencabot.has_cool_hair)
+print(kenny.has_cool_hair)
+print(signopt.has_cool_hair)
+
+vencabot.in_pockets.append("Nintendo DS")
+
+print(vencabot.in_pockets)
+print(kenny.in_pockets)
+print(signopt.in_pockets)
+
+# Speaking of MUTABILITY and IDENTITY (and when I say 'identity,' I'm
+# talking about the difference betweeo two different lists that contain
+# the same things. They might have the same stuff, but they are different
+# lists), how can we move this list between objects.
+
+# ChocoAfroo asks, in particular, how to exchange this pocket inventory
+# between CoolGuys.
+
+# Well, if we understand the way that Python (and other languages)
+# handles NAMING and IDENTITY, it's trivial.
+
+# We know that kenny.in_pockets and signopt.in_pockets and
+# vencabot.in_pockets all point to different lists.
+
+# We also know that we can reassign names belonging to instances freely.
+
+# Let's give Kenny the pockets that used to belong to Vencabot, and let's
+# give Vencabot the pockets that used to belong to Kenny:
+
+kennys_old_pockets = kenny.in_pockets
+# We're making a new name, 'kennys_old_pockets', and we're assinging it
+# to the VALUE of what's currently named 'kenny.in_pockets'.
+# Now, that list has two names.
+# We have to create a new name for the list currently at kenny.in_pockets
+# because, on the next line, we reassign the name 'kenny.in_pockets' to
+# another value.
+# Without assigning the name 'kennys_old_pockets' to this list, the next
+# line would mean that the list now has NO NAMES.
+# Once a piece of data has NO NAMES, there is no way for us, as
+# programmers, to access it. That list is inaccesible and Python deletes
+# it ('garbage collects' it) to save memory.
+
+kenny.in_pockets = vencabot.in_pockets
+# Now, we have REASSIGNED THE NAME 'kenny.in_pockets' to point toward the
+# list that is currently named vencabot.in_pockets.
+# Now, the list at vencabot.in_pockets has TWO DIFFERENT NAMES. Those two
+# names belonging to that ONE LIST are vencabot.in_pockets and
+# kenny.in_pockets .
+
+# The list that USED to be pointed to by kenny.in_pockets now only has
+# ONE name: kennys_old_pockets.
+
+vencabot.in_pockets = kennys_old_pockets
+# Now, we have REASSIGNED THE NAME 'vencabot.in_pockets' to point toward
+# the list that is currently named kennys_old_pockets.
+# Now, that list has two different names: kennys_old_pockets and
+# vencabot.in_pockets.
+
+# The list that USED to be pointed to by vencabot.in_pockets now only has
+# ONE name: kenny.in_pockets
+
+# At first, this can seem kind of confusing because you want to think of
+# vencabot.in_pockets as a list that's being changed or moved around.
+# Actually, vencabot.in_pockets is JUST A NAME that we use to REFER to a
+# list, and that name can be REASSIGNED to any other value. Once the name
+# is reassigned, it no longer points toward its old value -- a name, in a
+# scope, can only point to one value at a time.
+
+# All we've done is take two LISTS that ALREADY EXISTED and we SWAPPED
+# their names.
+
+print(kenny.in_pockets)
+print(vencabot.in_pockets)
+
+
+
+
+# Now, let's have Vencabot's pockets STAY Vencabot's pockets, and let's
+# have Kenny's pockets STAY Kenny's pockets -- but let's have Vencabot
+# give his DS to Kenny.
+
+# And we're going to talk more about IDENTITY.
+
+class CoolGuy:
+    has_cool_hair = True
+
+    def __init__(self, cool_guy_name):
+        self.cool_name = cool_guy_name
+        self.in_pockets = [
+                PocketThing("sunglasses"), PocketThing("comb"),
+                PocketThing("picture of girlfriend"),
+                PocketThing("black leather wallet with a chain")]
+
+
+class PocketThing:
+    def __init__(self, thing_name):
+        self.thing_name = thing_name
+        self.has_stickers = False
+
+
+kenny = CoolGuy("Kenny")
+signopt = CoolGuy("signopt")
+vencabot = CoolGuy("Vencabot")
+
+vencabot.in_pockets.append(PocketThing("Nintendo DS"))
+vencabot.in_pockets[-1].has_stickers = True
+
+# Now, Vencabot has a DS in his pockets and that DS has stickers on it.
+# Let's give it to Kenny.
+
+# We're removing the last item in Vencabot's pockets.
+#vencabot.in_pockets.remove(vencabot.in_pockets[-1])
+
+#kenny.in_pockets.append(PocketThing("Nintendo DS"))
+# Now, Kenny has a DS.
+
+# But, I mean... it doesn't have stickers.
+#print(kenny.in_pockets[-1].has_stickers)
+
+# Instead of REMOVING the DS from Vencabot's inventory, which gets rid of
+# it's FINAL NAME and therefore causes Python to garbage-collect it, we
+# can use the list's 'pop' method to remove the DS from the list AND give
+# it a new name, which we can then use to add the same DS to Kenny's
+# inventory.
+
+vencas_ds = vencabot.in_pockets.pop()
+kenny.in_pockets.append(vencas_ds)
+
+# Now, it has stickers -- it's actually the same DS that Vencabot had.
+print(kenny.in_pockets[-1].has_stickers)
