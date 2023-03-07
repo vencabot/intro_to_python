@@ -1,3 +1,4 @@
+#Cool bro been reading over your codes =)
 pets_favorite_food = "caramel apple"
 pets_hated_food = "okra"
 pets_happiness = 50
