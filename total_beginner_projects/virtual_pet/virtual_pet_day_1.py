@@ -1,5 +1,5 @@
-pets_favorite_food = "caramel apple"
-pets_hated_food = "okra"
+pets_favorite_food = "apples" and "eggs" and "steak" and "bacon"
+pets_hated_food = "okra" and "lettuce" and "lemons" and "carrots"
 pets_happiness = 50
 pets_hunger = 50
 
